@@ -1,0 +1,96 @@
+/* headerinterne.css */
+
+/* Utilisation du fond sombre pour faire ressortir le blanc et l'orange */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #1b1b1b; /* Fond sombre */
+    padding: 1rem 2rem;
+    color: #fff; /* Couleur du texte blanc */
+}
+
+.logo img {
+    height: 50px; /* Ajustez la taille en fonction du rendu souhaité */
+}
+
+.burger-menu {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 30px;
+    height: 25px;
+    cursor: pointer;
+}
+
+.burger-bar {
+    width: 100%;
+    height: 4px;
+    background-color: #f39c12; /* Couleur orange du logo */
+    transition: all 0.3s ease;
+}
+
+/* Quand le menu est ouvert, les barres du burger se transforment en croix */
+.burger-bar.open:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+
+.burger-bar.open:nth-child(2) {
+    opacity: 0;
+}
+
+.burger-bar.open:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -5px);
+}
+
+/* Styles pour le menu de navigation */
+.nav-menu {
+    position: absolute;
+    top: 70px;
+    right: 0;
+    background-color: #1b1b1b; /* Fond sombre comme l'entête */
+    padding: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.nav-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.nav-menu ul li {
+    margin: 1rem 0;
+}
+
+.nav-menu ul li a {
+    color: #fff; /* Texte blanc pour ressortir */
+    text-decoration: none;
+    font-size: 1.2rem;
+    transition: color 0.3s ease;
+}
+
+.nav-menu ul li a:hover {
+    color: #f39c12; /* Couleur orange au survol */
+}
+
+@media (min-width: 768px) {
+    .burger-menu {
+        display: none;
+    }
+
+    .nav-menu {
+        position: static;
+        display: flex;
+        align-items: center;
+    }
+
+    .nav-menu ul {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .nav-menu ul li {
+        margin: 0 1rem;
+    }
+}
