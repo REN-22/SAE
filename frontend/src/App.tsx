@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import Fil from './Component/Filphoto/fil'
 import Profil from './Component/pageutilisateur/profil'
+import HeaderInterne from './Component/Header/headerinterne'
+
 
 function App() {
   const [page, setPage] = useState(1);
-  const [username, setUsername] = useState(String);
-  const [email, setEmail] = useState(String);
 
   return (
     <>
+    <HeaderInterne />
     <div>
       {page === 1 && (
         <Fil
@@ -16,20 +17,8 @@ function App() {
       )}
       {page === 2 && (
         <Profil
-          setPage={setPage}
-          username={username}
-          email={email} />
+          setPage={setPage} />
       )}
-    </div>
-    <div>
-      <input
-        type="text"
-        placeholder="username"
-        onChange={(e) => setUsername(e.target.value)} />
-      <input
-        type="text"
-        placeholder="email"
-        onChange={(e) => setEmail(e.target.value)} />
     </div>
     </>
   );
