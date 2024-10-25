@@ -23,25 +23,27 @@ const Fil: React.FC<FilProps> = ({ setPage }) => {
 
     return (
         <div className="postcom">
-            <div className="superpost">
+          <div className="superpost">
             {posts.map((post) => (
-                <div className="post" key={post.id}>
-                    <Post idPhoto={post.id} />
-                    <div style={{ display: "flex", justifyContent: "space-between", marginTop: "8px" }}>
-                        <button onClick={toggleAffcom}>
-                            Commenter <span>0</span>
-                        </button>
-                    </div>
+              <div className="post" key={post.id}>
+                <Post idPhoto={post.id} />
+                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "8px" }}>
+                  <button onClick={toggleAffcom}>
+                    Commenter <span>0</span>
+                  </button>
                 </div>
+              </div>
             ))}
+          </div>
+          {affcom && (
+            <div className="commentairelist">
+              <CommentairesTotal />
             </div>
-                {affcom && (
-                    <div className="commentaire">
-                        <CommentairesTotal />
-                    </div>
-                )}
+          )}
         </div>
-    );
-};
+        );
+      }
+      
+
 
 export default Fil;

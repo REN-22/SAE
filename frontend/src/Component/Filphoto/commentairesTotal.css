@@ -1,0 +1,12 @@
+.ajoutcom-button {
+    width: 100%; /* Prendre toute la largeur disponible */
+    height: 100%; /* Prendre toute la hauteur disponible */
+    border: none; /* Enlever les bordures */
+    padding: 0; /* Enlever le padding interne */
+    margin: 0; /* Enlever le margin externe */
+    background: #1b1b1b; /* Couleur de fond noire */
+    color: #f39c12; /* Couleur du texte (orange) */
+    font-size: 1.2rem; /* Taille de la police */
+    cursor: pointer; /* Pointeur pour indiquer un bouton cliquable */
+    box-sizing: border-box; /* Assurer que padding et bordure sont inclus dans la taille totale */
+}

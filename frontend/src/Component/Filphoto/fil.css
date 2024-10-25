@@ -1,0 +1,51 @@
+/* body {
+    display: flex;
+    justify-content: center;
+    margin: 0;
+} */
+
+.postcom {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%; /* ou une largeur fixe si tu préfères */
+  }
+
+  .superpost {
+    width: 50%; /* tu peux ajuster ce pourcentage selon tes besoins */
+    margin-left: 34.5%;
+  }
+
+.post {
+    border: 1px solid #ccc;
+    padding: 16px;
+    border-radius: 8px;
+    max-width: 400px;
+    margin: 16px;
+}
+
+.commentairelist {
+    width: 700px;
+    border: 1px solid #ccc;
+    padding: 16px;
+    border-radius: 8px;
+    margin: 16px;
+}
+
+.commentaire {
+    border: 1px solid #ccc;
+    padding: 6px;
+    
+    border-radius: 8px;
+    margin: 16px;
+}
+.ajoutcom {
+    border: 1px solid #ccc;
+    padding: 0; /* Met à 0 pour que le bouton prenne tout l'espace */
+    border-radius: 8px;
+    margin: 16px; 
+    box-sizing: border-box; /* Inclut les bordures et le padding dans la taille */
+    overflow: hidden; /* Empêche le bouton de dépasser les coins arrondis */
+}
+
+

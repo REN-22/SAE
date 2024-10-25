@@ -12,7 +12,7 @@ interface CommentData {
 
 const commentaire = [
     { id: 1, author: 'John Doe', content: 'This is a test comment.', date: '2023-10-01'},
-    { id: 2, author: 'Jane Smith', content: 'Another test comment.', date: '2023-10-02'},
+    { id: 2, author: 'Jane Smith', content: 'Another test commezzzzzzzzzzzzzzzzsssssssssssssszzzzzzzzzzzzzddddddddddddddddddddddddddddddddddddliqeuhglifwbdvlidbvliqbvliqebflqebvlqbfvlqezbbflqebfliqeifbliquebvliqbvliqebevbqrevbqleirbvqbviqbviqerbvliqbvliqbvliqebvliqzbvliqzibviqzbviqzbvzzzzzzzzzzzsssssssssssssssssssnt.', date: '2023-10-02'},
     { id: 3, author: 'Alice Johnson', content: 'Yet another test comment.', date: '2023-10-03'},
 ];
 
@@ -34,7 +34,7 @@ const Commentaire: React.FC<CommentaireProps> = ({ id }) => {
         <div className="commentaire">
             <div>
                 <h4>{com.author}</h4>
-                <p>{com.content}</p>
+                <p style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{com.content}</p>
                 <small>{com.date}</small>
             </div>
         </div>
