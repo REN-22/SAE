@@ -10,25 +10,14 @@ interface CommentData {
     date: string;
 }
 
-const Commentaire: React.FC<CommentaireProps> = ({ id }) => {
-    const [comments, setComments] = useState<CommentData[]>([
-        {
-            author: 'John Doe',
-            content: 'This is a test comment.',
-            date: '2023-10-01'
-        },
-        {
-            author: 'Jane Smith',
-            content: 'Another test comment.',
-            date: '2023-10-02'
-        },
-        {
-            author: 'Alice Johnson',
-            content: 'Yet another test comment.',
-            date: '2023-10-03'
-        }
-    ]);
+const commentaire = [
+    { id: 1, author: 'John Doe', content: 'This is a test comment.', date: '2023-10-01'},
+    { id: 2, author: 'Jane Smith', content: 'Another test comment.', date: '2023-10-02'},
+    { id: 3, author: 'Alice Johnson', content: 'Yet another test comment.', date: '2023-10-03'},
+];
 
+const Commentaire: React.FC<CommentaireProps> = ({ id }) => {
+    const com = commentaire.find(p => p.id === id);
     // useEffect(() => {
     //     // Replace with your actual API endpoint
     //     fetch(`/api/comments/${id}`)
@@ -37,19 +26,17 @@ const Commentaire: React.FC<CommentaireProps> = ({ id }) => {
     //         .catch(error => console.error('Error fetching comments:', error));
     // }, [id]);
 
-    if (comments.length === 0) {
+    if (!com) {
         return <div>Loading...</div>;
     }
 
     return (
         <div className="commentaire">
-            {comments.map((comment, index) => (
-                <div key={index}>
-                    <h4>{comment.author}</h4>
-                    <p>{comment.content}</p>
-                    <small>{comment.date}</small>
-                </div>
-            ))}
+            <div>
+                <h4>{com.author}</h4>
+                <p>{com.content}</p>
+                <small>{com.date}</small>
+            </div>
         </div>
     );
 };

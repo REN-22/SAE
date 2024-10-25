@@ -1,5 +1,7 @@
 import React from "react";
 import Post from "./post";
+import "./fil.css";
+import CommentairesTotal from "./commentairesTotal";
 
 interface FilProps {
     setPage: any;
@@ -16,13 +18,28 @@ const Fil: React.FC<FilProps> = ({ setPage }) => {
 
     const toggleAffcom = () => {
         setAffcom(!affcom);
+        console.log("Toggle comments visibility:", !affcom);
     };
 
     return (
-        <div>
+        <div className="postcom">
+            <div className="superpost">
             {posts.map((post) => (
-                <Post key={post.id} idPhoto={post.id} setaffcom={setAffcom} />
+                <div className="post" key={post.id}>
+                    <Post idPhoto={post.id} />
+                    <div style={{ display: "flex", justifyContent: "space-between", marginTop: "8px" }}>
+                        <button onClick={toggleAffcom}>
+                            Commenter <span>0</span>
+                        </button>
+                    </div>
+                </div>
             ))}
+            </div>
+                {affcom && (
+                    <div className="commentaire">
+                        <CommentairesTotal />
+                    </div>
+                )}
         </div>
     );
 };
