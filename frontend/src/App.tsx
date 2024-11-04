@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import './App.css'
 import Inscription from './Component/PagedeConnexion/Inscription'
 import Fil from './Component/Filphoto/fil'
 import Profil from './Component/pageutilisateur/profil'
@@ -10,9 +11,11 @@ function App() {
 
   return (
     <>
-    <HeaderInterne 
-      setpage={setPage}/>
     <div>
+    <HeaderInterne 
+      setPage={setPage}/>
+    </div>
+    <div className='page-content'>
       {page === 1 && (
         <Fil
           setPage={setPage} />

@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import './header.css';
 
 interface HeaderInterneProps {
-    setpage: (page: number) => void;
+    setPage: (page: number) => void;
 }
 
-const HeaderInterne: React.FC<HeaderInterneProps> = ({ setpage }) => {
+const HeaderInterne: React.FC<HeaderInterneProps> = ({ setPage }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const toggleMenu = () => {
@@ -23,16 +23,15 @@ const HeaderInterne: React.FC<HeaderInterneProps> = ({ setpage }) => {
                 <div className={`burger-bar ${isMenuOpen ? 'open' : ''}`}></div>
                 <div className={`burger-bar ${isMenuOpen ? 'open' : ''}`}></div>
                 <div className={`burger-bar ${isMenuOpen ? 'open' : ''}`}></div>
-                <div className={`burger-bar ${isMenuOpen ? 'open' : ''}`}></div>
             </div>
 
             {/* Navigation toujours visible sur grand écran et contrôlée par burger sur petits écrans */}
             <nav className={`nav-menu ${isMenuOpen ? 'open' : ''}`}>
                 <ul>
-                    <li><a href="#" onClick={() => setpage(1)}>Profile</a></li>
-                    <li><a href="#" onClick={() => setpage(1)}>Settings</a></li>
-                    <li><a href="#" onClick={() => setpage(1)}>Logout</a></li>
-                    <li><a href="#" onClick={() => setpage(3)}>inscription</a></li>
+                    <li><a href="#" onClick={() => setPage(1)}>Profile</a></li>
+                    <li><a href="#" onClick={() => setPage(1)}>Settings</a></li>
+                    <li><a href="#" onClick={() => setPage(3)}>inscription</a></li>
+                    <li><a href="#" onClick={() => setPage(1)}>Logout</a></li>
                 </ul>
             </nav>
         </header>

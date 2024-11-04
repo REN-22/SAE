@@ -2,10 +2,16 @@ import connexion from './db_connexion';
 import express from 'express';
 import mysql from 'mysql2/promise';
 import { hashPassword,comparePassword } from './hashage';
+const cors = require('cors')
 
 const app = express();
-const port = 5000;
+const PORT = 5000;
 
+app.use(cors())
+app.use(express.json())
+app.listen(PORT, () => {
+  console.log('connection au port 5000 reussi')
+})
 
 app.use(express.json());
 
