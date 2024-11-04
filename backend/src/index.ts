@@ -20,6 +20,8 @@ app.use(express.json());
 
 app.post('/POST/create-user', async (req, res) => {
     const { pseudo, nom, prenom, adresse, cp, ville, telephone, mail, mdp, role, statut, notif_mail, statut_cotisation } = req.body;
+
+    /* vérification des champs */
     const hashedMdp = hashPassword(mdp);
     try {
         const result = await connexion.execute(
@@ -53,6 +55,10 @@ app.post('/POST/create-user', async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
+
+/*------------------------------------------PUT---------------------------------------------- */
+
+
 
 /*------------------------------------------GET---------------------------------------------- */
 
