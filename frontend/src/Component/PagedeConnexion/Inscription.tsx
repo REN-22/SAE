@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import './Inscription.css';
 
-const Inscription: React.FC = () => {
+interface InscriptionProps {
+  setPage: (page: number) => void;
+}
+
+const Inscription: React.FC<InscriptionProps> = ({ setPage }) => {
   const [firstName, setFirstName] = useState<string>('');
   const [lastName, setLastName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
@@ -87,7 +91,7 @@ const Inscription: React.FC = () => {
           />
         </div>
         <button type="submit" className="validate-button">Valider</button>
-        <button type="button" className="cancel-button" onClick={handleCancel}>Annuler</button>
+        <button type="button" className="cancel-button" onClick={() => setPage(1)}>Annuler</button>
       </form>
     </div>
   );
