@@ -28,6 +28,7 @@ function App() {
         <Inscription
           setPage={setPage} />
       )}
+      {/* 4 => uploadphoto */}
     </div>
     </>
   );
