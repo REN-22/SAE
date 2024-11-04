@@ -32,7 +32,7 @@ const HeaderInterne: React.FC<HeaderInterneProps> = ({ setpage }) => {
                     <li><a href="#" onClick={() => setpage(1)}>Profile</a></li>
                     <li><a href="#" onClick={() => setpage(1)}>Settings</a></li>
                     <li><a href="#" onClick={() => setpage(1)}>Logout</a></li>
-                    <li><a href="#" onClick={() => setpage(3)}>inscription</a></li>
+                    <li><a href="#" onClick={() => setpage(3)}>Inscription</a></li>
                 </ul>
             </nav>
         </header>
