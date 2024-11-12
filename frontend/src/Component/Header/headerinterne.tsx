@@ -12,6 +12,11 @@ const HeaderInterne: React.FC<HeaderInterneProps> = ({ setPage }) => {
         setIsMenuOpen(!isMenuOpen);
     };
 
+    const handleLogout = () => {
+        localStorage.removeItem('phototoken');
+        setPage(5);
+    }
+
     return (
         <header className="header">
             <div className="logo">
@@ -31,7 +36,7 @@ const HeaderInterne: React.FC<HeaderInterneProps> = ({ setPage }) => {
                     <li><a href="#" onClick={() => setPage(1)}>Profile</a></li>
                     <li><a href="#" onClick={() => setPage(1)}>Settings</a></li>
                     <li><a href="#" onClick={() => setPage(3)}>inscription</a></li>
-                    <li><a href="#" onClick={() => setPage(1)}>Logout</a></li>
+                    <li><a href="#" onClick={handleLogout}>déconnexion</a></li>
                 </ul>
             </nav>
         </header>
