@@ -16,3 +16,12 @@ export const authenticateToken = (token : any) => {
     return { valid: false, userId: null };
   }
 };
+// Fonction pour obtenir l'ID de l'utilisateur à partir du jeton JWT
+export const getUserIdFromToken = (token: any) => {
+  try {
+    const decoded = jwt.verify(token, secretKey);
+    return (decoded as any).id;
+  } catch (err) {
+    return null;
+  }
+};

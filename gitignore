@@ -25,6 +25,8 @@
 
 #backend
 /backend/node_modules
+/backend/photo
+/backend/exif
 
 #sonardQube
 /.scannerwork

@@ -15,17 +15,5 @@ connexion.connect((err) => {
     console.log('Connected to MySQL!');
 });
 
-export const executeQuery = (query: string, callback: (err: mysql.QueryError | null, results?: any) => void) => {
-    connexion.query(query, (err, results) => {
-        if (err) {
-            console.error('Error querying MySQL:', err);
-            callback(err);
-            return;
-        }
-        console.log('Query results:', results);
-        callback(null, results);
-    });
-};
-
 
 export default connexion;
