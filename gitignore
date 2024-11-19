@@ -22,15 +22,13 @@
 /frontend/yarn-debug.log*
 /frontend/yarn-error.log*
 
-
-#backend
+# backend
 /backend/node_modules
-/backend/photo
-/backend/exif
+/backend/photo/
+/backend/exif/
 
-#sonardQube
+# sonardQube
 /.scannerwork
 
-#prettierrc
+# prettierrc
 /.prettierrc
-
