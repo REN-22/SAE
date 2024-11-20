@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
-import './Connexion.css';
+import './CIStyle.css';
 
-const Connexion: React.FC = () => {
+interface ConnexionProps {
+  setPage: (page: number) => void;
+}
+
+const Connexion: React.FC<ConnexionProps> = ({setPage}) => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
 
@@ -16,7 +20,7 @@ const Connexion: React.FC = () => {
     <div className="connexion-container">
       <h2>Connexion</h2>
       <form onSubmit={handleLogin} className="connexion-form">
-        <div className="input-container">
+        <div className="input-Ccontainer">
           <label htmlFor="email">Adresse e-mail</label>
           <input
             type="email"
@@ -27,7 +31,7 @@ const Connexion: React.FC = () => {
             className="input-field"
           />
         </div>
-        <div className="input-container">
+        <div className="input-ccontainer">
           <label htmlFor="password">Mot de passe</label>
           <input
             type="password"

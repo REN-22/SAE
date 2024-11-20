@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import './App.css'
+import Connexion from './Component/PagedeConnexion/Connexion'
 import Inscription from './Component/PagedeConnexion/Inscription'
 import Fil from './Component/Filphoto/fil'
 import Profil from './Component/pageutilisateur/profil'
@@ -7,7 +8,7 @@ import HeaderInterne from './Component/Header/headerinterne'
 
 
 function App() {
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(3);
 
   return (
     <>
@@ -28,7 +29,11 @@ function App() {
         <Inscription
           setPage={setPage} />
       )}
-      {/* 4 => uploadphoto */}
+      {page === 4 && (
+        <Connexion
+          setPage={setPage} />
+      )}
+      {/* 5 => uploadphoto */}
     </div>
     </>
   );
