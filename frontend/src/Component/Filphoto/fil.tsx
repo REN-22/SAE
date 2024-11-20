@@ -23,6 +23,7 @@ const Fil: React.FC<FilProps> = ({ setPage }) => {
 
     return (
         <div className="postcom">
+          <button onClick={() => setPage(4)}>nouveau post</button>
           <div className="superpost">
             {posts.map((post) => (
               <div className="post" key={post.id}>
