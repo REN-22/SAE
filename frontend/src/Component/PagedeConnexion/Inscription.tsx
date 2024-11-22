@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import './Inscription.css';
 
-const Inscription: React.FC = () => {
+interface Inscriptionprops {
+  setPage: any;
+}
+
+const Inscription: React.FC <Inscriptionprops> = () => {
   const [firstName, setFirstName] = useState<string>('');
   const [lastName, setLastName] = useState<string>('');
   const [email, setEmail] = useState<string>('');

@@ -5,7 +5,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh;
+    flex: 1;
     background-color: #f4f4f4;
   }
   
@@ -19,22 +19,10 @@
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
   }
   
-  .input-container {
-    margin-bottom: 15px;
-  }
-  
-  .input-field {
-    width: 100%;
-    padding: 8px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    font-size: 16px;
-  }
-  
   .connexion-button {
     padding: 10px;
-    background-color: #007BFF;
-    color: #fff;
+    background: #1b1b1b; /* Couleur de fond noire */
+    color: #f39c12; /* Couleur du texte (orange) */
     font-size: 16px;
     border: none;
     border-radius: 4px;

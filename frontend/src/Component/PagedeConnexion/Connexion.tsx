@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import './Connexion.css';
 
-const Connexion: React.FC = () => {
+interface Connexionprops {
+  setPage: any;
+}
+
+const Connexion: React.FC<Connexionprops> = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
 
