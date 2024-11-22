@@ -22,7 +22,7 @@ const Post: React.FC<PostProps> = ({ idPhoto}) => {
     return (
         <>
             <h1>{photo.title}</h1>
-            <img src={require('../../images/meme.gif')} alt="Photo" style={{ width: "100%", height: "auto" }} />
+            <img src={require('../../images/meme.jpg')} alt="Photo" style={{ width: "100%", height: "auto" }} />
             <p>{photo.description}</p>
             <div style={{ marginTop: "8px" }}>
                 {photo.tags.map((tag, index) => (
