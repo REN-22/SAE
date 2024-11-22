@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './Inscription.css';
+import './CIStyle.css';
 import axios from 'axios';
 
 interface InscriptionProps {
@@ -168,8 +168,10 @@ const Inscription: React.FC = () => {
           />
           <label htmlFor="emailNotification">Notification par e-mail</label>
         </div>
-        <button type="submit" className="validate-button" onClick={() => handleRegister}>Valider</button>
-        <button type="button" className="cancel-button" onClick={() => setPage(1)}>Annuler</button>
+        <div className="CIbutton-container">
+          <button type="submit" className="validate-button" onClick={() => handleRegister}>Valider</button>
+          <button type="button" className="cancel-button" onClick={() => setPage(1)}>Annuler</button>
+        </div>
       </form>
     </div>
   );

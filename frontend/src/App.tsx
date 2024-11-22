@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
+import axios from 'axios'
+import './App.css'
+import Connexion from './Component/PagedeConnexion/Connexion'
+import Inscription from './Component/PagedeConnexion/Inscription'
 import Fil from './Component/Filphoto/fil'
 import Profil from './Component/pageutilisateur/profil'
 import HeaderInterne from './Component/Header/headerinterne'
 import Uploadphoto from './Component/uploadphoto/uploadphoto'
-import Connexion from './Component/PagedeConnexion/Connexion'
 import HeaderPublic from './Component/Header/headerpublic'
 
 function App() {
