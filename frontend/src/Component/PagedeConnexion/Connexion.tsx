@@ -12,7 +12,6 @@ const Connexion: React.FC<ConnexionProps> = ({ setPage, setIsConnected, isConnec
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
 
-  
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Connexion en cours...');
