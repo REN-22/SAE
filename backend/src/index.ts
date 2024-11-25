@@ -7,6 +7,7 @@ const cors = require('cors');
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import sharp from 'sharp';
 
 const app = express();
 const PORT = 5000;
@@ -73,7 +74,90 @@ app.post('/POST/create-user', async (req, res) => {
     }
 });
 
-// Upload d'une photo avec fichiers
+// // Upload d'une photo avec fichiers
+// app.post('/POST/upload-photo', upload.fields([{ name: 'exif', maxCount: 1 }, { name: 'photo', maxCount: 1 }]), async (req, res) => {
+//     if (!req.files || !('photo' in req.files)) {
+//         return res.status(400).json({ message: 'No photo file uploaded' });
+//     }
+
+//     const info = JSON.parse(req.body.info);
+//     const { nom, nomphoto, description, isPublic, photographe } = info;
+//     const token = req.body.token;
+
+//     console.log('req.body.info', req.body.info);
+//     console.log('nom', nom);
+//     console.log('nomphoto', nomphoto);
+//     console.log('description', description);
+//     console.log('isPublic', isPublic);
+//     console.log('photographe', photographe);
+
+//     const tokenVerification = authenticateToken(token);
+//     const date_depot = new Date();
+
+//     const userId = getUserIdFromToken(req.body.token);
+
+//     let exif;
+//     if (!req.files['exif']) {
+//         exif = 'intégré';
+//     } else {
+//         exif = req.files['exif'][0].path;
+//     }
+//     try {
+//         const [result] = await connexion.promise().execute(
+//             `INSERT INTO photo (nom, date_depot, exif, isPublic, id_utilisateur, id_utilisateur_1, légende) 
+//                                     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+//             [nom, date_depot, exif, isPublic, userId, photographe, description]
+//         );
+
+//         const photoId = (result as unknown as mysql.ResultSetHeader).insertId;
+
+//         // Move files to their respective directories
+//         const photoFile = req.files['photo'][0];
+
+//         // Vérification de l'existence des fichiers
+//         if (!fs.existsSync(photoFile.path)) {
+//             return res.status(500).json({ message: 'Temporary file not found' });
+//         }
+
+//         const photoFilePath = path.join(__dirname, 'photo', `${photoId}-${photoFile.originalname}`);
+
+//         await fs.promises.mkdir(path.dirname(photoFilePath), { recursive: true });
+//         await fs.promises.rename(photoFile.path, photoFilePath);
+
+//         if (req.files['exif']) {
+//             const exifFile = req.files['exif'][0];
+//             const exifFilePath = path.join(__dirname, 'exif', `${photoId}.exif`);
+
+//             await fs.promises.mkdir(path.dirname(exifFilePath), { recursive: true });
+//             await fs.promises.rename(exifFile.path, exifFilePath);
+//         }
+
+//         res.status(201).json({
+//             message: 'Photo uploaded successfully',
+//             photo: {
+//                 id_photo: photoId,
+//                 nom,
+//                 date_depot,
+//                 exif: req.files['exif'] ? req.files['exif'][0].path : null,
+//                 nomphoto,
+//                 description,
+//                 isPublic,
+//                 id_utilisateur: tokenVerification.userId,
+//                 photographe,
+//                 photoFilePath
+//             }
+//         });
+//     } catch (error) {
+//         // Nettoyage des fichiers téléchargés en cas d'erreur
+//         if (req.files['photo']?.[0]?.path) await fs.promises.unlink(req.files['photo'][0].path).catch(console.error);
+//         if (req.files['exif']?.[0]?.path) await fs.promises.unlink(req.files['exif'][0].path).catch(console.error);
+    
+//         console.error(error);
+//         res.status(500).json({ message: 'Internal Server Error' });
+//     }
+// });
+
+// Upload d'une photo avec fichiers et création d'une version de moindre qualité
 app.post('/POST/upload-photo', upload.fields([{ name: 'exif', maxCount: 1 }, { name: 'photo', maxCount: 1 }]), async (req, res) => {
     if (!req.files || !('photo' in req.files)) {
         return res.status(400).json({ message: 'No photo file uploaded' });
@@ -82,13 +166,6 @@ app.post('/POST/upload-photo', upload.fields([{ name: 'exif', maxCount: 1 }, { n
     const info = JSON.parse(req.body.info);
     const { nom, nomphoto, description, isPublic, photographe } = info;
     const token = req.body.token;
-
-    console.log('req.body.info', req.body.info);
-    console.log('nom', nom);
-    console.log('nomphoto', nomphoto);
-    console.log('description', description);
-    console.log('isPublic', isPublic);
-    console.log('photographe', photographe);
 
     const tokenVerification = authenticateToken(token);
     const date_depot = new Date();
@@ -119,9 +196,16 @@ app.post('/POST/upload-photo', upload.fields([{ name: 'exif', maxCount: 1 }, { n
         }
 
         const photoFilePath = path.join(__dirname, 'photo', `${photoId}-${photoFile.originalname}`);
+        const minPhotoFilePath = path.join(__dirname, 'minphoto', `${photoId}-${photoFile.originalname}`);
 
         await fs.promises.mkdir(path.dirname(photoFilePath), { recursive: true });
         await fs.promises.rename(photoFile.path, photoFilePath);
+
+        // Create a lower quality version of the photo
+        await fs.promises.mkdir(path.dirname(minPhotoFilePath), { recursive: true });
+        await sharp(photoFilePath)
+            .resize(800) // Resize to 800px width, keeping aspect ratio
+            .toFile(minPhotoFilePath);
 
         if (req.files['exif']) {
             const exifFile = req.files['exif'][0];
@@ -143,7 +227,8 @@ app.post('/POST/upload-photo', upload.fields([{ name: 'exif', maxCount: 1 }, { n
                 isPublic,
                 id_utilisateur: tokenVerification.userId,
                 photographe,
-                photoFilePath
+                photoFilePath,
+                minPhotoFilePath
             }
         });
     } catch (error) {
