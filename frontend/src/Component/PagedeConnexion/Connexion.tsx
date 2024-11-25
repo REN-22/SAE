@@ -8,7 +8,7 @@ interface ConnexionProps {
   isConnected: boolean;
 }
 
-const Connexion: React.FC = () => {
+const Connexion: React.FC<ConnexionProps> = ({ setPage, setIsConnected, isConnected }) => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
 
