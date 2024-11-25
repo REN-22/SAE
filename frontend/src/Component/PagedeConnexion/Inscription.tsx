@@ -6,7 +6,7 @@ interface InscriptionProps {
   setPage: (page: number) => void;
 }
 
-const Inscription: React.FC = () => {
+const Inscription: React.FC<InscriptionProps> = ({ setPage }) => {
   const [firstName, setFirstName] = useState<string>('');
   const [lastName, setLastName] = useState<string>('');
   const [pseudo, setPseudo] = useState<string>('');
