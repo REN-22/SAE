@@ -6,4 +6,5 @@
 # fichier a exclure
 /src/photo
 /src/exif
+/src/minphoto
 /uploads
