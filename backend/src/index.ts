@@ -233,5 +233,28 @@ app.get('/GET/users', async (req, res) => {
     }
 });
 
+// récupération liste des tags
+app.get('/GET/tags', async (req, res) => {
+    const token = req.query.token;
+
+    if (!token) {
+        return res.status(400).json({ message: 'Token is missing' });
+    }
+
+    const tokenVerification = authenticateToken(token);
+    
+    if (!tokenVerification || !tokenVerification.valid) {
+        return res.status(401).json({ message: 'Invalid token' });
+    }
+
+    try {
+        const [rows]: any = await connexion.promise().query(`SELECT * FROM motcle`);
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
 
 /*-----------------------------------------DELETE---------------------------------------------- */

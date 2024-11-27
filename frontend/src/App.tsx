@@ -9,6 +9,7 @@ import Uploadphoto from './Component/uploadphoto/uploadphoto'
 import Connexion from './Component/PagedeConnexion/Connexion'
 import HeaderPublic from './Component/Header/headerpublic'
 
+//CPT
 function App() {
   const [page, setPage] = useState(1);
   const [isConnected, setIsConnected] = useState(false);

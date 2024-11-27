@@ -7,3 +7,62 @@
     height: 100%;
     border: 1px solid #ccc;
 }
+
+/* Zone des tags sélectionnés */
+.selected-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.selected-tag {
+    display: flex;
+    align-items: center;
+    background: #007bff;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.remove-tag-button {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 14px;
+    margin-left: 8px;
+    cursor: pointer;
+}
+
+.remove-tag-button:hover {
+    color: #ffcccc;
+}
+
+/* Liste des tags disponibles */
+.tag-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+}
+
+.tag-item {
+    padding: 10px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    text-align: center;
+    cursor: pointer;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+.tag-item:hover {
+    background: #e6f7ff;
+    color: #007bff;
+}
+
+.tag-item.selected {
+    background: #d1ecf1;
+    color: #0c5460;
+    cursor: default;
+}
