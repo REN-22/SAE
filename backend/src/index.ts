@@ -81,7 +81,7 @@ app.post('/POST/upload-photo', upload.fields([{ name: 'exif', maxCount: 1 }, { n
     }
 
     const info = JSON.parse(req.body.info);
-    const { nom, nomphoto, description, isPublic, photographe } = info;
+    const { nom, nomphoto, description, isPublic, photographe, tags } = info; // `tags` contient une liste d'IDs des mots-clés
     const token = req.body.token;
 
     const tokenVerification = authenticateToken(token);
@@ -95,16 +95,27 @@ app.post('/POST/upload-photo', upload.fields([{ name: 'exif', maxCount: 1 }, { n
     } else {
         exif = req.files['exif'][0].path;
     }
+
     try {
+        // Étape 1 : Insérer la photo
         const [result] = await connexion.promise().execute(
-            `INSERT INTO photo (nom, date_depot, exif, isPublic, id_utilisateur, id_utilisateur_1, légende) 
+            `INSERT INTO Photo (nom, date_depot, exif, isPublic, id_utilisateur, id_utilisateur_1, légende) 
                                     VALUES (?, ?, ?, ?, ?, ?, ?)`,
             [nom, date_depot, exif, isPublic, userId, photographe, description]
         );
 
         const photoId = (result as unknown as mysql.ResultSetHeader).insertId;
 
-        // Move files to their respective directories
+        // Étape 2 : Insérer les associations dans la table de jointure (decrire)
+        if (Array.isArray(tags) && tags.length > 0) {
+            const tagValues = tags.map((tagId) => [photoId, tagId]);
+            await connexion.promise().query(
+                `INSERT INTO decrire (id_photo, id_mot_cle) VALUES ?`,
+                [tagValues]
+            );
+        }
+
+        // Étape 3 : Gérer les fichiers (photo et exif)
         const photoFile = req.files['photo'][0];
 
         // Vérification de l'existence des fichiers
@@ -118,10 +129,10 @@ app.post('/POST/upload-photo', upload.fields([{ name: 'exif', maxCount: 1 }, { n
         await fs.promises.mkdir(path.dirname(photoFilePath), { recursive: true });
         await fs.promises.rename(photoFile.path, photoFilePath);
 
-        // Create a lower quality version of the photo
+        // Créer une version de qualité réduite de la photo
         await fs.promises.mkdir(path.dirname(minPhotoFilePath), { recursive: true });
         await sharp(photoFilePath)
-            .resize(800) // Resize to 800px width, keeping aspect ratio
+            .resize(800) // Redimensionner à une largeur de 800px
             .toFile(minPhotoFilePath);
 
         if (req.files['exif']) {
@@ -132,6 +143,7 @@ app.post('/POST/upload-photo', upload.fields([{ name: 'exif', maxCount: 1 }, { n
             await fs.promises.rename(exifFile.path, exifFilePath);
         }
 
+        // Étape 4 : Retourner la réponse
         res.status(201).json({
             message: 'Photo uploaded successfully',
             photo: {
@@ -145,18 +157,20 @@ app.post('/POST/upload-photo', upload.fields([{ name: 'exif', maxCount: 1 }, { n
                 id_utilisateur: tokenVerification.userId,
                 photographe,
                 photoFilePath,
-                minPhotoFilePath
+                minPhotoFilePath,
+                tags
             }
         });
     } catch (error) {
         // Nettoyage des fichiers téléchargés en cas d'erreur
         if (req.files['photo']?.[0]?.path) await fs.promises.unlink(req.files['photo'][0].path).catch(console.error);
         if (req.files['exif']?.[0]?.path) await fs.promises.unlink(req.files['exif'][0].path).catch(console.error);
-    
+
         console.error(error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
+
 
 
 /*------------------------------------------PUT---------------------------------------------- */
