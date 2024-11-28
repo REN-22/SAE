@@ -42,7 +42,7 @@ app.post('/POST/create-user', async (req, res) => {
     /* vérification des champs */
     const hashedMdp = hashPassword(mdp);
     try {
-        const result = await connexion.execute(
+        const result = connexion.execute(
             `INSERT INTO utilisateur (pseudo, nom, prenom, adresse, cp, ville, telephone, mail, mdp, role, statut, notif_mail, statut_cotisation) 
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 
@@ -213,7 +213,7 @@ app.get('/GET/verify-token', (req, res) => {
 
     const tokenVerification = authenticateToken(token);
     
-    if (!tokenVerification || !tokenVerification.valid) {
+    if (!tokenVerification.valid) {
         return res.status(401).json({ message: 'Invalid token' });
     }
 
@@ -230,7 +230,7 @@ app.get('/GET/users', async (req, res) => {
 
     const tokenVerification = authenticateToken(token);
     
-    if (!tokenVerification || !tokenVerification.valid) {
+    if (!tokenVerification.valid) {
         return res.status(401).json({ message: 'Invalid token' });
     }
 
@@ -257,7 +257,7 @@ app.get('/GET/tags', async (req, res) => {
 
     const tokenVerification = authenticateToken(token);
     
-    if (!tokenVerification || !tokenVerification.valid) {
+    if (!tokenVerification.valid) {
         return res.status(401).json({ message: 'Invalid token' });
     }
 

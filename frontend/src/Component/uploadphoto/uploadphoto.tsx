@@ -46,7 +46,7 @@ const Uploadphoto: React.FC<UploadphotoProps> = ({ setPage }) => {
             photographe,
             tags: selectedTags.map(tag => tag.id_mot_cle), // On envoie les IDs des tags sélectionnés
         }));
-        formData.append('token', token || '');
+        formData.append('token', token ?? '');
 
         try {
             const response = await axios.post('http://localhost:5000/POST/upload-photo', formData, {
@@ -101,11 +101,13 @@ const Uploadphoto: React.FC<UploadphotoProps> = ({ setPage }) => {
     const handleTagSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
         const tagselec = tags.filter(tag => selectedOptions.includes(tag.texte));
-        setSelectedTags(prevSelectedTags => {
-            const newTags = tagselec.filter(tag => !prevSelectedTags.some(selectedTag => selectedTag.id_mot_cle === tag.id_mot_cle));
-            return [...prevSelectedTags, ...newTags];
-        });
+        setSelectedTags(prevSelectedTags => addNewTags(prevSelectedTags, tagselec));
         console.log("selectedTags", selectedTags);
+    };
+
+    const addNewTags = (prevSelectedTags: any[], tagselec: any[]) => {
+        const newTags = tagselec.filter(tag => !prevSelectedTags.some(selectedTag => selectedTag.id_mot_cle === tag.id_mot_cle));
+        return [...prevSelectedTags, ...newTags];
     };
 
     const handleRemoveTag = (tagId: number) => {
@@ -162,7 +164,6 @@ const Uploadphoto: React.FC<UploadphotoProps> = ({ setPage }) => {
                     </option>
                 ))}
             </select>
-
             <textarea
                 placeholder="Description"
                 value={description}
@@ -173,8 +174,7 @@ const Uploadphoto: React.FC<UploadphotoProps> = ({ setPage }) => {
                     type="checkbox"
                     checked={isPublic}
                     onChange={(e) => setIsPublic(e.target.checked)}
-                />
-                Public
+                /> Public
             </label>
             <button onClick={handleUpload}>Valider</button>
         </div>
