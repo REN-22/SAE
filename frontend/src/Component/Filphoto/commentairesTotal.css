@@ -1,6 +1,6 @@
 .ajoutcom-button {
-    width: 100%; /* Prendre toute la largeur disponible */
-    height: 100%; /* Prendre toute la hauteur disponible */
+    width: 50%; /* Prendre toute la largeur disponible */
+    height: 50%; /* Prendre toute la hauteur disponible */
     border: none; /* Enlever les bordures */
     padding: 0; /* Enlever le padding interne */
     margin: 0; /* Enlever le margin externe */

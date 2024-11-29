@@ -4,6 +4,7 @@
     margin: 0;
 } */
 
+
 .postcom {
     display: flex;
     justify-content: space-between;
@@ -12,16 +13,18 @@
   }
 
   .superpost {
-    width: 50%; /* tu peux ajuster ce pourcentage selon tes besoins */
-    margin-left: 34.5%;
+    margin-left: 20%;
+    width: 100%; /* tu peux ajuster ce pourcentage selon tes besoins */
+    /* margin-left: 34.5%; */
   }
 
 .post {
+    margin-right: auto;
     border: 1px solid #ccc;
     padding: 16px;
     border-radius: 8px;
     max-width: 400px;
-    margin: 16px;
+    margin-top: 16px;
 }
 
 .commentairelist {
@@ -35,9 +38,9 @@
 .commentaire {
     border: 1px solid #ccc;
     padding: 6px;
-    
+    margin-left: auto;
     border-radius: 8px;
-    margin: 16px;
+    margin-top: 16px;
 }
 .ajoutcom {
     border: 1px solid #ccc;
@@ -46,6 +49,21 @@
     margin: 16px; 
     box-sizing: border-box; /* Inclut les bordures et le padding dans la taille */
     overflow: hidden; /* Empêche le bouton de dépasser les coins arrondis */
+}
+
+.bouttoncoms {
+    width: 100%;
+    background: #1b1b1b;
+    color: #f39c12;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.bouttoncoms:hover {
+    background: #333;
 }
 
 
