@@ -115,3 +115,11 @@
 .validate-button {
     margin-right: 20px;
 }
+
+/* Page de présentation */
+
+.PageStart-image {
+    width: 100vw; /* Remplit toute la largeur de la fenêtre */
+    height: 100vh; /* Remplit toute la hauteur de la fenêtre */
+    display: block; /* Évite les espaces indésirables (spécifique aux images) */
+  }

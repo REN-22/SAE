@@ -5,7 +5,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh;
+    height: calc(100vh - 112px); /* Calculer 100vh - 86px */
     background-color: #f4f4f4;
   }
   

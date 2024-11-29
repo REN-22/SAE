@@ -17,9 +17,13 @@ const HeaderInterne: React.FC<HeaderInterneProps> = ({ setPage }) => {
         setPage(5);
     }
 
+    const handleLogoClick = () => {
+        setPage(1); // Redirige vers la page 1 lorsque l'image du logo est cliquée
+    }
+
     return (
         <header className="header">
-            <div className="logo">
+            <div className="logo" onClick={handleLogoClick}>
                 <img src={require('../../images/logo.png')} alt="Club Logo" />
             </div>
 
@@ -33,7 +37,7 @@ const HeaderInterne: React.FC<HeaderInterneProps> = ({ setPage }) => {
             {/* Navigation toujours visible sur grand écran et contrôlée par burger sur petits écrans */}
             <nav className={`nav-menu ${isMenuOpen ? 'open' : ''}`}>
                 <ul>
-                    <li><a href="#" onClick={() => setPage(1)}>Profile</a></li>
+                    <li><a href="#" onClick={() => setPage(2)}>Profile</a></li>
                     <li><a href="#" onClick={() => setPage(1)}>Settings</a></li>
                     <li><a href="#" onClick={() => setPage(3)}>inscription</a></li>
                     <li><a href="#" onClick={handleLogout}>déconnexion</a></li>

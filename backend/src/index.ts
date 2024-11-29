@@ -172,6 +172,42 @@ app.post('/POST/upload-photo', upload.fields([{ name: 'exif', maxCount: 1 }, { n
     }
 });
 
+/* Import de fichier pdf */
+app.post('/POST/upload-pdf', uploadPdf.single('pdf'), async (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ message: 'No PDF file uploaded' });
+    }
+
+    const pdfFilePath = req.file.path;
+    const pdfFileName = req.file.filename;
+    const date_depot = new Date();
+    const id_evenement = req.body.id_evenement;  // ID de l'événement
+    const id_utilisateur = getUserIdFromToken(req.body.token);  // Récupérer l'ID de l'utilisateur
+
+    try {
+        // Insertion dans la table 'document'
+        const [result] = await connexion.promise().execute(
+            'INSERT INTO document (nom, chemin, date_depot, id_evenement, id_utilisateur) VALUES (?, ?, ?, ?, ?)',
+            [pdfFileName, pdfFilePath, date_depot, id_evenement, id_utilisateur]
+        );
+
+        res.status(201).json({
+            message: 'PDF uploaded successfully',
+            document: {
+                id_document: result.insertId,
+                nom: pdfFileName,
+                chemin: pdfFilePath,
+                date_depot,
+                id_evenement,
+                id_utilisateur
+            }
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
 
 
 /*------------------------------------------PUT---------------------------------------------- */

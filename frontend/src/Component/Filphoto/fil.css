@@ -66,4 +66,29 @@
     background: #333;
 }
 
+.MenuFil {
+    display: flex;
+    flex-direction: column; /* Arrange les enfants verticalement */
+    gap: 10px; /* Ajoute un espacement entre les boutons */
+    align-items: flex-start; /* Aligne les boutons à gauche */
+    margin-bottom: 20px; /* Ajoute un espace entre la section MenuFil et le contenu suivant */
+}
 
+.MenuFil button {
+    background-color: #77B5FE; /* Couleur de fond */
+    color: white; /* Couleur du texte */
+    border: none; /* Supprime les bordures */
+    padding: 10px 20px; /* Rembourrage */
+    margin: 5px 0; /* Espacement vertical entre les boutons */
+    text-align: center; /* Centre le texte */
+    font-size: 18px; /* Taille du texte */
+    font-weight: bold; /* Texte en gras */
+    border-radius: 0 25px 25px 0; /* Arrondi uniquement les coins droits */
+    cursor: pointer; /* Curseur pointeur */
+    transition: background-color 0.3s ease; /* Animation lors du survol */
+    width: 260px;
+}
+
+.MenuFil button:hover {
+    background-color: #455ca0; /* Couleur légèrement différente au survol */
+}

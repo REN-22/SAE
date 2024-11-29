@@ -1,0 +1,71 @@
+.DocOblietImport {
+    width: 1000px;
+    margin: 0 auto;
+    background-color: #fafafa;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+  }
+
+
+.Documents h2 {
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #222;
+}
+
+.UploadSection h2 {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #222;
+  }
+
+.DocOblig {
+    background-color: #eaeaea;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.Documents-container {
+    display: flex;
+    flex-direction: row; /* Arrange les enfants verticalement */
+}
+
+.MenuFil {
+    display: flex;
+    flex-direction: column; /* Arrange les enfants verticalement */
+    gap: 10px; /* Ajoute un espacement entre les boutons */
+    align-items: flex-start; /* Aligne les boutons à gauche */
+    margin-bottom: 20px; /* Ajoute un espace entre la section MenuFil et le contenu suivant */
+}
+
+.MenuFil button {
+    background-color: #77B5FE; /* Couleur de fond */
+    color: white; /* Couleur du texte */
+    border: none; /* Supprime les bordures */
+    padding: 10px 20px; /* Rembourrage */
+    margin: 5px 0; /* Espacement vertical entre les boutons */
+    text-align: center; /* Centre le texte */
+    font-size: 18px; /* Taille du texte */
+    font-weight: bold; /* Texte en gras */
+    border-radius: 0 25px 25px 0; /* Arrondi uniquement les coins droits */
+    cursor: pointer; /* Curseur pointeur */
+    transition: background-color 0.3s ease; /* Animation lors du survol */
+    width: 260px;
+}
+
+.MenuFil button:hover {
+    background-color: #455ca0; /* Couleur légèrement différente au survol */
+}
+
+.UploadSection{
+    width: 500px;
+}
+
+.Documents{
+    width: 500px;
+}

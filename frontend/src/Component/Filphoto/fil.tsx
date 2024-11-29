@@ -38,7 +38,10 @@ const Fil: React.FC<FilProps> = ({ setPage }) => {
 
   return (
     <div className="superpostcom">
-      <button onClick={() => setPage(4)}>nouveau post</button>
+      <div className="MenuFil">
+            <button onClick={() => setPage(4)}>Nouveau Post</button>
+            <button onClick={() => setPage(6)}>Documents Consultable</button>
+        </div>
     <div className="postcom">
       <div className="superpost">
       {posts.map((post) => (
