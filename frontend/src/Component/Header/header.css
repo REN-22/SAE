@@ -24,6 +24,7 @@
     cursor: pointer;
 }
 
+
 .burger-bar {
     width: 100%;
     height: 4px;
@@ -52,6 +53,7 @@
     right: 0;
     background-color: #1b1b1b;
     padding: 1rem;
+    z-index: 1000;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -96,6 +98,7 @@
         background-color: transparent;
         box-shadow: none;
         padding: 0;
+        z-index: 1000;
     }
 
     .nav-menu ul {

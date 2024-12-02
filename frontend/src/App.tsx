@@ -8,6 +8,8 @@ import HeaderInterne from './Component/Header/headerinterne'
 import Uploadphoto from './Component/uploadphoto/uploadphoto'
 import Connexion from './Component/PagedeConnexion/Connexion'
 import HeaderPublic from './Component/Header/headerpublic'
+import Calendrier from './Component/evenement/calendrier'
+import AjoutEvent from './Component/evenement/ajoutevent'
 
 //CPT
 function App() {
@@ -78,6 +80,15 @@ function App() {
           setPage={setPage}
           setIsConnected={setIsConnected} 
           isConnected />
+      )}
+
+      {page === 7 && (
+        <Calendrier
+          setPage={setPage} />
+      )}
+      {page === 8 && (
+        <AjoutEvent
+          setPage={setPage} />
       )}
     </div>
     </>

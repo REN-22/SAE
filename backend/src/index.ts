@@ -172,6 +172,43 @@ app.post('/POST/upload-photo', upload.fields([{ name: 'exif', maxCount: 1 }, { n
     }
 });
 
+// création d'un évènement
+app.post('/POST/create-event', async (req, res) => {
+    const { date_heure_debut, date_heure_fin, titre, descriptif, lieu, type} = req.body.data;
+    const token = req.body.token;
+
+    const tokenVerification = authenticateToken(token);
+    if (!tokenVerification.valid) {
+        return res.status(401).json({ message: 'Invalid token' });
+    }
+
+    const userId = getUserIdFromToken(token);
+
+    try {
+        const [result] = await connexion.promise().execute(
+            `INSERT INTO evenement (date_heure_debut, date_heure_fin, titre, descriptif, lieu, type, id_utilisateur) 
+             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [date_heure_debut, date_heure_fin, titre, descriptif, lieu, type, userId]
+        );
+
+        res.status(201).json({
+            message: 'Event created successfully',
+            event: {
+                id_evenement: (result as unknown as mysql.ResultSetHeader).insertId,
+                date_heure_debut,
+                date_heure_fin,
+                titre,
+                descriptif,
+                lieu,
+                type,
+                id_utilisateur: userId
+            }
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
 
 
 /*------------------------------------------PUT---------------------------------------------- */

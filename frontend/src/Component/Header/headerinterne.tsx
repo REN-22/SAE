@@ -33,8 +33,9 @@ const HeaderInterne: React.FC<HeaderInterneProps> = ({ setPage }) => {
             {/* Navigation toujours visible sur grand écran et contrôlée par burger sur petits écrans */}
             <nav className={`nav-menu ${isMenuOpen ? 'open' : ''}`}>
                 <ul>
+                    <li><a href="#" onClick={() => setPage(7)}>evenement</a></li>
                     <li><a href="#" onClick={() => setPage(1)}>Profile</a></li>
-                    <li><a href="#" onClick={() => setPage(1)}>Settings</a></li>
+                    <li><a href="#" onClick={() => setPage(1)}>options</a></li>
                     <li><a href="#" onClick={() => setPage(3)}>inscription</a></li>
                     <li><a href="#" onClick={handleLogout}>déconnexion</a></li>
                 </ul>
