@@ -332,61 +332,6 @@ app.get('/GET/photosid', async (req, res) => {
     }
 });
 
-// // récupération d'une photo avec sa version de moindre qualité
-// app.get('/GET/photo', async (req, res) => {
-//     const id = req.query.id;
-//     const token = req.query.token;
-
-//     if (!token) {
-//         return res.status(400).json({ message: 'Token is missing' });
-//     }
-
-//     const tokenVerification = authenticateToken(token);
-    
-//     if (!tokenVerification.valid) {
-//         return res.status(401).json({ message: 'Invalid token' });
-//     }
-
-//     try {
-//         const [rows]: any = await connexion.promise().query(
-//             `SELECT * FROM photo WHERE id_photo = ?`, 
-//             [id]
-//         );
-
-//         if (rows.length === 0) {
-//             return res.status(404).json({ message: 'Photo not found' });
-//         }
-
-//         const photo = rows[0];
-
-//         // Path to the original photo
-//         const photoPath = path.join(__dirname, 'photos', `${photo.id_photo}.jpg`);
-//         // Path to the minified version
-//         const minPhotoPath = path.join(__dirname, 'minphoto', `${photo.id_photo}.jpg`);
-
-//         if (!fs.existsSync(photoPath)) {
-//             return res.status(404).json({ message: 'Photo file not found' });
-//         }
-
-//         if (!fs.existsSync(minPhotoPath)) {
-//             return res.status(404).json({ message: 'Min photo file not found' });
-//         }
-
-//         // Send the original photo and the minified photo as files
-//         res.status(200).sendFile(minPhotoPath, (err) => {
-//             if (err) {
-//                 console.error('Error sending the min photo:', err);
-//                 res.status(500).json({ message: 'Error sending min photo' });
-//             } else {
-//                 console.log('Min photo sent successfully.');
-//             }
-//         });
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).json({ message: 'Internal Server Error' });
-//     }
-// });
-
 app.get('/GET/photo/metadata', async (req, res) => {
     const id = req.query.id;
     const token = req.query.token;
@@ -530,6 +475,29 @@ app.get('/GET/photo/file', async (req, res) => {
 
         const photoPath = path.join(photoDirectory, photoFile);
         res.sendFile(photoPath);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// récupération des évènements
+app.get('/GET/events', async (req, res) => {
+    const token = req.query.token;
+
+    if (!token) {
+        return res.status(400).json({ message: 'Token is missing' });
+    }
+
+    const tokenVerification = authenticateToken(token);
+    
+    if (!tokenVerification.valid) {
+        return res.status(401).json({ message: 'Invalid token' });
+    }
+
+    try {
+        const [rows]: any = await connexion.promise().query(`SELECT * FROM evenement ORDER BY date_heure_debut DESC`);
+        res.status(200).json(rows);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal Server Error' });

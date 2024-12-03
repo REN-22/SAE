@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import axios from 'axios';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from '../../moment-config';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
@@ -18,26 +19,16 @@ interface Event {
     type: string;
 }
 
-const events: Event[] = [
+const event: Event[] = [
     {
-        title: 'Event 1',
-        start: new Date(2023, 10, 1, 10, 0).toISOString(), // November 1, 2023 10:00 AM
-        end: new Date(2023, 10, 1, 12, 0).toISOString(), // November 1, 2023 12:00 PM
-        description: 'Description for Event 1',
-        location: 'Location 1',
-        type: 'Type 1',
-    },
-    {
-        title: 'Event 2',
-        start: new Date(2023, 10, 2, 14, 0).toISOString(), // November 2, 2023 2:00 PM
-        end: new Date(2023, 10, 2, 16, 0).toISOString(), // November 2, 2023 4:00 PM
-        description: 'Description for Event 2',
-        location: 'Location 2',
-        type: 'Type 2',
+        title: 'Test Event',
+        start: '2024-06-28T10:00:00',
+        end: '2024-06-28T12:00:00',
+        description: 'Test Description',
+        location: 'Test Location',
+        type: 'Test Type',
     },
 ];
-
-console.log(events);
 
 const messages = {
     allDay: "Toute la journée",
@@ -65,6 +56,38 @@ const EventAgenda = ({ event }: { event: Event }) => (
 );
 
 const Calendrier: React.FC<CalendrierProps> = ({ setPage }) => {
+    const token = localStorage.getItem('phototoken');
+    const [events, setEvents] = React.useState<Event[]>([]);
+
+    useEffect(() => {
+        const fetchEvents = async () => {
+            try {
+                const response = await axios.get('http://localhost:5000/GET/events', {
+                    params: {
+                        token: token
+                    }
+                });
+                const data = response.data;
+                setEvents(data);
+                const transformedEvents = data.map(transformEvent);
+                setEvents(transformedEvents);
+            } catch (error) {
+                console.error('Error fetching events:', error);
+            }
+        };  
+
+        fetchEvents();
+    }, [token]);
+    
+    const transformEvent = (event: any): Event => ({
+        title: event.titre,
+        start: event.date_heure_debut,
+        end: event.date_heure_fin,
+        description: event.descriptif,
+        location: event.lieu,
+        type: event.type,
+    });
+
     return (
         <>
             <div>

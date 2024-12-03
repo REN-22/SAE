@@ -16,7 +16,7 @@ const AjoutEvent: React.FC<AjoutEventProps> = ({ setPage }) => {
         type: '',
     });
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setEvent({
             ...event,
@@ -64,7 +64,16 @@ const AjoutEvent: React.FC<AjoutEventProps> = ({ setPage }) => {
             </div>
             <div>
                 <label>Type:</label>
-                <input type="text" name="type" value={event.type} onChange={handleChange} required />
+                <select name="type" value={event.type} onChange={handleChange} required>
+                    <option value="">Sélectionnez un type</option>
+                    <option value="Cours">Cours</option>
+                    <option value="Sortie à thème">Sortie à thème</option>
+                    <option value="Expo">Expo</option>
+                    <option value="Réunion">Réunion</option>
+                    <option value="Info ext">Info ext</option>
+                    <option value="Collaboration ext">Collaboration ext</option>
+                    <option value="Visionnage">Visionnage</option>
+                </select>
             </div>
             <button type="submit">Ajouter l'évènement</button>
         </form>
