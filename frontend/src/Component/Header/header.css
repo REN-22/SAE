@@ -22,8 +22,10 @@
     width: 30px;
     height: 25px;
     cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
 }
-
 
 .burger-bar {
     width: 100%;

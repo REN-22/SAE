@@ -33,7 +33,7 @@ const AjoutEvent: React.FC<AjoutEventProps> = ({ setPage }) => {
                     token: token
                 });
                 console.log(response.data);
-                setPage(1);
+                setPage(7);
             } catch (error) {
                 console.error('There was an error creating the event!', error);
             }
@@ -43,28 +43,28 @@ const AjoutEvent: React.FC<AjoutEventProps> = ({ setPage }) => {
     return (
         <form onSubmit={handleSubmit}>
             <div>
-                <label>Date et Heure de Début:</label>
-                <input type="datetime-local" name="date_heure_debut" value={event.date_heure_debut} onChange={handleChange} required />
+                <label htmlFor="date_heure_debut">Date et Heure de Début:</label>
+                <input id="date_heure_debut" type="datetime-local" name="date_heure_debut" value={event.date_heure_debut} onChange={handleChange} required />
             </div>
             <div>
-                <label>Date et Heure de Fin:</label>
-                <input type="datetime-local" name="date_heure_fin" value={event.date_heure_fin} onChange={handleChange} required />
+                <label htmlFor="date_heure_fin">Date et Heure de Fin:</label>
+                <input id="date_heure_fin" type="datetime-local" name="date_heure_fin" value={event.date_heure_fin} onChange={handleChange} required />
             </div>
             <div>
-                <label>Titre:</label>
-                <input type="text" name="titre" value={event.titre} onChange={handleChange} required />
+                <label htmlFor="titre">Titre:</label>
+                <input id="titre" type="text" name="titre" value={event.titre} onChange={handleChange} required />
             </div>
             <div>
-                <label>Descriptif:</label>
-                <textarea name="descriptif" value={event.descriptif} onChange={handleChange} required />
+                <label htmlFor="descriptif">Descriptif:</label>
+                <textarea id="descriptif" name="descriptif" value={event.descriptif} onChange={handleChange} required />
             </div>
             <div>
-                <label>Lieu:</label>
-                <input type="text" name="lieu" value={event.lieu} onChange={handleChange} required />
+                <label htmlFor="lieu">Lieu:</label>
+                <input id="lieu" type="text" name="lieu" value={event.lieu} onChange={handleChange} required />
             </div>
             <div>
-                <label>Type:</label>
-                <select name="type" value={event.type} onChange={handleChange} required>
+                <label htmlFor="type">Type:</label>
+                <select id="type" name="type" value={event.type} onChange={handleChange} required>
                     <option value="">Sélectionnez un type</option>
                     <option value="Cours">Cours</option>
                     <option value="Sortie à thème">Sortie à thème</option>

@@ -12,23 +12,14 @@ interface CalendrierProps {
 
 interface Event {
     title: string;
-    start: string;
-    end: string;
+    start: Date;
+    end: Date;
     description: string;
     location: string;
     type: string;
+    allDay: boolean;
 }
 
-const event: Event[] = [
-    {
-        title: 'Test Event',
-        start: '2024-06-28T10:00:00',
-        end: '2024-06-28T12:00:00',
-        description: 'Test Description',
-        location: 'Test Location',
-        type: 'Test Type',
-    },
-];
 
 const messages = {
     allDay: "Toute la journée",
@@ -68,9 +59,9 @@ const Calendrier: React.FC<CalendrierProps> = ({ setPage }) => {
                     }
                 });
                 const data = response.data;
-                setEvents(data);
                 const transformedEvents = data.map(transformEvent);
                 setEvents(transformedEvents);
+                console.log('Events:', transformedEvents);
             } catch (error) {
                 console.error('Error fetching events:', error);
             }
@@ -81,11 +72,12 @@ const Calendrier: React.FC<CalendrierProps> = ({ setPage }) => {
     
     const transformEvent = (event: any): Event => ({
         title: event.titre,
-        start: event.date_heure_debut,
-        end: event.date_heure_fin,
+        start: moment.tz(event.date_heure_debut, "Europe/Paris").toDate(), // Conversion explicite
+        end: moment.tz(event.date_heure_fin, "Europe/Paris").toDate(),    // Conversion explicite
         description: event.descriptif,
         location: event.lieu,
         type: event.type,
+        allDay: false, // Force l'affichage dans les plages horaires
     });
 
     return (
@@ -101,6 +93,7 @@ const Calendrier: React.FC<CalendrierProps> = ({ setPage }) => {
                     messages={messages}
                     startAccessor="start"
                     endAccessor="end"
+                    allDayAccessor={(event) => event.allDay || false} // Force à `false` si pas défini
                     style={{ height: 500 }}
                     components={{
                         agenda: {
