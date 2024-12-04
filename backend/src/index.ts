@@ -86,6 +86,10 @@ app.post('/POST/upload-photo', upload.fields([{ name: 'exif', maxCount: 1 }, { n
     const token = req.body.token;
 
     const tokenVerification = authenticateToken(token);
+    if (!tokenVerification.valid) {
+        return res.status(401).json({ message: 'Invalid token' });
+    }
+
     const date_depot = new Date();
 
     const userId = getUserIdFromToken(req.body.token);
@@ -308,10 +312,12 @@ app.get('/GET/tags', async (req, res) => {
     }
 });
 
-
-// récupération liste des photos triées par date de dépôt
+// récupération des photos avec pagination
 app.get('/GET/photosid', async (req, res) => {
     const token = req.query.token;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = 10;
+    const offset = (page - 1) * limit;
 
     if (!token) {
         return res.status(400).json({ message: 'Token is missing' });
@@ -324,7 +330,10 @@ app.get('/GET/photosid', async (req, res) => {
     }
 
     try {
-        const [rows]: any = await connexion.promise().query(`SELECT * FROM photo ORDER BY date_depot DESC`);
+        const [rows]: any = await connexion.promise().query(
+            `SELECT * FROM photo ORDER BY date_depot DESC LIMIT ? OFFSET ?`,
+            [limit, offset]
+        );
         res.status(200).json(rows);
     } catch (error) {
         console.error(error);
