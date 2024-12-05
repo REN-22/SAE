@@ -38,10 +38,15 @@ const upload = multer({ storage });
 
 // Création d'un utilisateur
 app.post('/POST/create-user', async (req, res) => {
-    const { pseudo, nom, prenom, adresse, cp, ville, telephone, mail, mdp, role, statut, notif_mail, statut_cotisation } = req.body;
+    const { pseudo, nom, prenom, adresse, cp, ville, telephone, mail, mdp, notif_mail} = req.body;
 
     /* vérification des champs */
     const hashedMdp = hashPassword(mdp);
+
+    const role = "utilisateur";
+    const statut = false;
+    const statut_cotisation = false;
+    
     try {
         const result = connexion.execute(
             `INSERT INTO utilisateur (pseudo, nom, prenom, adresse, cp, ville, telephone, mail, mdp, role, statut, notif_mail, statut_cotisation) 

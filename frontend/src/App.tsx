@@ -48,7 +48,6 @@ function App() {
   return (
     <>
     <div>
-  
     {isConnected === true && (
       <HeaderInterne 
       setPage={setPage}/>
