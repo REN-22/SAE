@@ -39,6 +39,7 @@ const Fil: React.FC<FilProps> = ({ setPage }) => {
           }
         });
         const data = response.data;
+        console.log("data", data);
         setPosts(data);
       } catch (error) {
         console.error('Error fetching posts:', error);

@@ -9,6 +9,7 @@ import path from 'path';
 import fs from 'fs';
 import sharp from 'sharp';
 import { console } from 'inspector';
+import {ExifParserFactory} from "ts-exif-parser";
 
 const app = express();
 const PORT = 5000;
@@ -46,7 +47,7 @@ app.post('/POST/create-user', async (req, res) => {
     const role = "utilisateur";
     const statut = false;
     const statut_cotisation = false;
-    
+
     try {
         const result = connexion.execute(
             `INSERT INTO utilisateur (pseudo, nom, prenom, adresse, cp, ville, telephone, mail, mdp, role, statut, notif_mail, statut_cotisation) 
@@ -81,7 +82,7 @@ app.post('/POST/create-user', async (req, res) => {
 });
 
 // Upload d'une photo avec fichiers et création d'une version de moindre qualité
-app.post('/POST/upload-photo', upload.fields([{ name: 'exif', maxCount: 1 }, { name: 'photo', maxCount: 1 }]), async (req, res) => {
+app.post('/POST/upload-photo', upload.fields([{ name: 'photo', maxCount: 1 }]), async (req, res) => {
     if (!req.files || !('photo' in req.files)) {
         return res.status(400).json({ message: 'No photo file uploaded' });
     }
@@ -99,19 +100,55 @@ app.post('/POST/upload-photo', upload.fields([{ name: 'exif', maxCount: 1 }, { n
 
     const userId = getUserIdFromToken(req.body.token);
 
-    let exif;
-    if (!req.files['exif']) {
-        exif = 'intégré';
-    } else {
-        exif = req.files['exif'][0].path;
+    // Récupérer les données EXIF de la photo
+    const photoFile = req.files['photo'][0];
+    let exifData = null;
+
+    try {
+        const buffer = await fs.promises.readFile(photoFile.path);
+        const parser = ExifParserFactory.create(buffer);
+        const result = parser.parse();
+        exifData = result.tags;
+    } catch (error) {
+        console.error('Error parsing EXIF data:', error);
     }
+
+    // Formater les données EXIF pour une meilleure lisibilité
+    const formattedData = {
+        "Paramètres de l'appareil photo": {
+            Modèle: exifData?.Model,
+            Objectif: exifData?.LensModel,
+            LongueurFocale: `${exifData?.FocalLength} mm`,
+            Equivalent35mm: `${exifData?.FocalLengthIn35mmFormat} mm`,
+            Ouverture: `f/${exifData?.FNumber}`,
+            TempsExposition: `${exifData?.ExposureTime} s`,
+            ISO: exifData?.ISO,
+            ModeExposition: exifData?.ExposureProgram,
+        },
+        "Conditions de capture": {
+            Luminosité: exifData?.BrightnessValue,
+            EquilibreDesBlancs: typeof exifData?.WhiteBalance === 'number' && exifData.WhiteBalance === 1 ? "Automatique" : "Manuel",
+            ModeMesure: exifData?.MeteringMode,
+            SourceLumière: exifData?.LightSource,
+        },
+        Flash: {
+            Etat: typeof exifData?.Flash === 'number' && exifData.Flash === 16 ? "Non utilisé" : "Utilisé",
+        },
+        "Autres propriétés": {
+            Dimensions: `${exifData?.ExifImageWidth} x ${exifData?.ExifImageHeight}`,
+            Orientation: exifData?.Orientation === 1 ? "Normale" : "Rotée",
+            EspaceColorimétrique: typeof exifData?.ColorSpace === 'number' && exifData.ColorSpace === 65535 ? "Non calibré" : exifData?.ColorSpace,
+            Gamma: exifData?.Gamma,
+            Logiciel: exifData?.Software,
+        },
+    };
 
     try {
         // Étape 1 : Insérer la photo
         const [result] = await connexion.promise().execute(
             `INSERT INTO Photo (nom, date_depot, exif, isPublic, id_utilisateur, id_utilisateur_1, légende) 
                                     VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            [nom, date_depot, exif, isPublic, userId, photographe, description]
+            [nom, date_depot, JSON.stringify(formattedData), isPublic, userId, photographe, description]
         );
 
         const photoId = (result as unknown as mysql.ResultSetHeader).insertId;
@@ -125,7 +162,7 @@ app.post('/POST/upload-photo', upload.fields([{ name: 'exif', maxCount: 1 }, { n
             );
         }
 
-        // Étape 3 : Gérer les fichiers (photo et exif)
+        // Étape 3 : Gérer le ficher photo
         const photoFile = req.files['photo'][0];
 
         // Vérification de l'existence des fichiers
@@ -133,8 +170,8 @@ app.post('/POST/upload-photo', upload.fields([{ name: 'exif', maxCount: 1 }, { n
             return res.status(500).json({ message: 'Temporary file not found' });
         }
 
-        const photoFilePath = path.join(__dirname, 'photo', `${photoId}`);
-        const minPhotoFilePath = path.join(__dirname, 'minphoto', `${photoId}`);
+        const photoFilePath = path.join(__dirname, 'photo', `${photoId}.jpg`);
+        const minPhotoFilePath = path.join(__dirname, 'minphoto', `${photoId}.jpg`);
 
         await fs.promises.mkdir(path.dirname(photoFilePath), { recursive: true });
         await fs.promises.rename(photoFile.path, photoFilePath);
@@ -144,14 +181,6 @@ app.post('/POST/upload-photo', upload.fields([{ name: 'exif', maxCount: 1 }, { n
         await sharp(photoFilePath)
             .resize(800) // Redimensionner à une largeur de 800px
             .toFile(minPhotoFilePath);
-
-        if (req.files['exif']) {
-            const exifFile = req.files['exif'][0];
-            const exifFilePath = path.join(__dirname, 'exif', `${photoId}.exif`);
-
-            await fs.promises.mkdir(path.dirname(exifFilePath), { recursive: true });
-            await fs.promises.rename(exifFile.path, exifFilePath);
-        }
 
         // Étape 4 : Retourner la réponse
         res.status(201).json({
@@ -169,7 +198,8 @@ app.post('/POST/upload-photo', upload.fields([{ name: 'exif', maxCount: 1 }, { n
                 photoFilePath,
                 minPhotoFilePath,
                 tags
-            }
+            },
+            exif : formattedData
         });
     } catch (error) {
         // Nettoyage des fichiers téléchargés en cas d'erreur
