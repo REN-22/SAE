@@ -81,7 +81,7 @@ const Connexion: React.FC<ConnexionProps> = ({ setPage, setIsConnected, isConnec
             className="input-field"
           />
         </div>
-        <div className="input-ccontainer">
+        <div className="input-Ccontainer">
           <label htmlFor="password">Mot de passe</label>
           <input
             type="password"

@@ -9,6 +9,7 @@ import Uploadphoto from './Component/uploadphoto/uploadphoto'
 import Connexion from './Component/PagedeConnexion/Connexion'
 import Document from './Component/ZoneDocument/Document'
 import PageStart from './Component/PagedeConnexion/PageStart'
+import Ami from './Component/ZoneAmi/Ami'
 import HeaderPublic from './Component/Header/headerpublic'
 
 //CPT
@@ -87,6 +88,10 @@ function App() {
       )}
       {page === 7 && (
         <PageStart
+          setPage={setPage} />
+      )}
+      {page === 8 && (
+        <Ami
           setPage={setPage} />
       )}
     </div>

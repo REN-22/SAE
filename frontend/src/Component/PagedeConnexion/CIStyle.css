@@ -44,8 +44,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh;
-    margin-bottom: 100px;
+    margin-bottom: 20px;
 }
   
 .input-container-checkbox input[type="checkbox"] {

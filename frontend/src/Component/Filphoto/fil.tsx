@@ -41,6 +41,7 @@ const Fil: React.FC<FilProps> = ({ setPage }) => {
       <div className="MenuFil">
             <button onClick={() => setPage(4)}>Nouveau Post</button>
             <button onClick={() => setPage(6)}>Documents Consultable</button>
+            <button onClick={() => setPage(8)}>Ami(e)s</button>
         </div>
     <div className="postcom">
       <div className="superpost">

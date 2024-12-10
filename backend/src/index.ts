@@ -1,5 +1,5 @@
 import connexion from './db_connexion';
-import express from 'express';
+import express, { Request, Response } from 'express';
 import mysql from 'mysql2/promise';
 import { hashPassword, comparePassword } from './hashage';
 import { generateToken, authenticateToken, getUserIdFromToken } from './jwt';
@@ -172,43 +172,68 @@ app.post('/POST/upload-photo', upload.fields([{ name: 'exif', maxCount: 1 }, { n
     }
 });
 
-/* Import de fichier pdf */
-app.post('/POST/upload-pdf', uploadPdf.single('pdf'), async (req, res) => {
-    if (!req.file) {
-        return res.status(400).json({ message: 'No PDF file uploaded' });
+// Upload d'un document PDF
+app.post('/POST/upload-document', upload.fields([{name: 'document', maxCount: 1}]), async (req, res) => {
+    if (!req.files || !('document' in req.files)) {
+        return res.status(400).json({ message: 'No document file uploaded' });
     }
 
-    const pdfFilePath = req.file.path;
-    const pdfFileName = req.file.filename;
+    const info = JSON.parse(req.body.info);
+    const { nom, id_evenement } = info;
+    const token = req.body.token;
+
+    const tokenVerification = authenticateToken(token);
     const date_depot = new Date();
-    const id_evenement = req.body.id_evenement;  // ID de l'événement
-    const id_utilisateur = getUserIdFromToken(req.body.token);  // Récupérer l'ID de l'utilisateur
+    const userId = getUserIdFromToken(token);
 
     try {
-        // Insertion dans la table 'document'
+        // Étape 1 : Insérer le document dans la table
         const [result] = await connexion.promise().execute(
-            'INSERT INTO document (nom, chemin, date_depot, id_evenement, id_utilisateur) VALUES (?, ?, ?, ?, ?)',
-            [pdfFileName, pdfFilePath, date_depot, id_evenement, id_utilisateur]
+            `INSERT INTO document (nom, chemin, date_depot, id_evenement, id_utilisateur) 
+             VALUES (?, ?, ?, ?, ?)`,
+            [nom, null, date_depot, id_evenement, userId]
         );
 
+        const documentId = (result as unknown as mysql.ResultSetHeader).insertId;
+
+        // Étape 2 : Déplacer le fichier dans le répertoir cible
+        const documentFile = req.files['document'][0];
+
+        if (!fs.existsSync(documentFile.path)) {
+            return res.status(500).json({ message: 'Temporary file not found' });
+        }
+
+        const documentFilePath = path.join(__dirname, 'documents', `${documentId}`);
+
+        await fs.promises.mkdir(path.dirname(documentFilePath), { recursive: true });
+        await fs.promises.rename(documentFile.path, documentFilePath);
+
+        // Mettre à jour le chemin du fichier dans la base de données
+        await connexion.promise().execute(
+            `UPDATE document SET chemin = ? WHERE id_document = ?`,
+            [documentFilePath, documentId]
+        );
+
+        // Étape 3 : Retourner la réponse
         res.status(201).json({
-            message: 'PDF uploaded successfully',
+            message: 'Document uploaded successfully',
             document: {
-                id_document: result.insertId,
-                nom: pdfFileName,
-                chemin: pdfFilePath,
+                id_document: documentId,
+                nom,
+                chemin: documentFilePath,
                 date_depot,
                 id_evenement,
-                id_utilisateur
+                id_utilisateur: tokenVerification.userId
             }
         });
     } catch (error) {
+        // Nettoyage des fichiers téléchargés en cas d'erreur
+        if (req.files['document']?.[0]?.path) await fs.promises.unlink(req.files['document'][0].path).catch(console.error);
+
         console.error(error);
-        res.status(500).json({ message: 'Internal Server Error' });
+        res.status(500).json({ message: 'Internal petasse Error' });
     }
 });
-
-
 
 /*------------------------------------------PUT---------------------------------------------- */
 
@@ -535,5 +560,35 @@ app.get('/GET/photo/file', async (req, res) => {
     }
 });
 
+/* Profil Utilisateur */
+app.get('/GET/utilisateur', async (req, res) => {
+    const token = req.query.token;
+
+    if (!token) {
+        return res.status(400).json({ message: 'Token is missing' });
+    }
+
+    const tokenVerification = authenticateToken(token);
+    
+    if (!tokenVerification || !tokenVerification.valid) {
+        return res.status(401).json({ message: 'Invalid token' });
+    }
+
+    try {
+        const userid = getUserIdFromToken(token);
+        const [rows]: any = await connexion.promise().query('SELECT nom, prenom, email, telephone FROM utilisateur WHERE id = ?', [userid]);
+
+        // Vérification si l'utilisateur existe
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Envoi des informations utilisateur
+        res.status(200).json(rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+})
 
 /*-----------------------------------------DELETE---------------------------------------------- */
