@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './CIStyle.css';
+import './Inscription.css';
 import axios from 'axios';
 
 interface InscriptionProps {
@@ -20,19 +20,6 @@ const Inscription: React.FC<InscriptionProps> = ({ setPage }) => {
 
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
-    // Logique d'inscription, comme un appel API
-    console.log('Inscription en cours...');
-    console.log('Nom:', lastName);
-    console.log('Prénom:', firstName);
-    console.log('Pseudo:', pseudo);
-    console.log('Adresse:', adresse);
-    console.log('Code postal:', cp);
-    console.log('Ville:', ville);
-    console.log('Email:', email);
-    console.log('Mot de passe:', password);
-    console.log('Téléphone:', phone);
-    console.log('Notification par e-mail:', emailNotification);
-
     axios.post('http://localhost:5000/POST/create-user', {
       pseudo,
       nom: lastName,
@@ -43,10 +30,7 @@ const Inscription: React.FC<InscriptionProps> = ({ setPage }) => {
       telephone: phone,
       mail: email,
       mdp: password,
-      role: 'pegu', // ACHANGER TEST
-      statut: true, // ACHANGER TEST
       notif_mail: emailNotification,
-      statut_cotisation: true, // ACHANGER TEST
     })
       .then((response) => {
         console.log('Success:', response.data);

@@ -9,6 +9,7 @@ import path from 'path';
 import fs from 'fs';
 import sharp from 'sharp';
 import { console } from 'inspector';
+import {ExifParserFactory} from "ts-exif-parser";
 
 const app = express();
 const PORT = 5000;
@@ -38,10 +39,15 @@ const upload = multer({ storage });
 
 // Création d'un utilisateur
 app.post('/POST/create-user', async (req, res) => {
-    const { pseudo, nom, prenom, adresse, cp, ville, telephone, mail, mdp, role, statut, notif_mail, statut_cotisation } = req.body;
+    const { pseudo, nom, prenom, adresse, cp, ville, telephone, mail, mdp, notif_mail} = req.body;
 
     /* vérification des champs */
     const hashedMdp = hashPassword(mdp);
+
+    const role = "utilisateur";
+    const statut = false;
+    const statut_cotisation = false;
+
     try {
         const result = connexion.execute(
             `INSERT INTO utilisateur (pseudo, nom, prenom, adresse, cp, ville, telephone, mail, mdp, role, statut, notif_mail, statut_cotisation) 
@@ -76,7 +82,7 @@ app.post('/POST/create-user', async (req, res) => {
 });
 
 // Upload d'une photo avec fichiers et création d'une version de moindre qualité
-app.post('/POST/upload-photo', upload.fields([{ name: 'exif', maxCount: 1 }, { name: 'photo', maxCount: 1 }]), async (req, res) => {
+app.post('/POST/upload-photo', upload.fields([{ name: 'photo', maxCount: 1 }]), async (req, res) => {
     if (!req.files || !('photo' in req.files)) {
         return res.status(400).json({ message: 'No photo file uploaded' });
     }
@@ -86,23 +92,63 @@ app.post('/POST/upload-photo', upload.fields([{ name: 'exif', maxCount: 1 }, { n
     const token = req.body.token;
 
     const tokenVerification = authenticateToken(token);
+    if (!tokenVerification.valid) {
+        return res.status(401).json({ message: 'Invalid token' });
+    }
+
     const date_depot = new Date();
 
     const userId = getUserIdFromToken(req.body.token);
 
-    let exif;
-    if (!req.files['exif']) {
-        exif = 'intégré';
-    } else {
-        exif = req.files['exif'][0].path;
+    // Récupérer les données EXIF de la photo
+    const photoFile = req.files['photo'][0];
+    let exifData = null;
+
+    try {
+        const buffer = await fs.promises.readFile(photoFile.path);
+        const parser = ExifParserFactory.create(buffer);
+        const result = parser.parse();
+        exifData = result.tags;
+    } catch (error) {
+        console.error('Error parsing EXIF data:', error);
     }
+
+    // Formater les données EXIF pour une meilleure lisibilité
+    const formattedData = {
+        "Paramètres de l'appareil photo": {
+            Modèle: exifData?.Model,
+            Objectif: exifData?.LensModel,
+            LongueurFocale: `${exifData?.FocalLength} mm`,
+            Equivalent35mm: `${exifData?.FocalLengthIn35mmFormat} mm`,
+            Ouverture: `f/${exifData?.FNumber}`,
+            TempsExposition: `${exifData?.ExposureTime} s`,
+            ISO: exifData?.ISO,
+            ModeExposition: exifData?.ExposureProgram,
+        },
+        "Conditions de capture": {
+            Luminosité: exifData?.BrightnessValue,
+            EquilibreDesBlancs: typeof exifData?.WhiteBalance === 'number' && exifData.WhiteBalance === 1 ? "Automatique" : "Manuel",
+            ModeMesure: exifData?.MeteringMode,
+            SourceLumière: exifData?.LightSource,
+        },
+        Flash: {
+            Etat: typeof exifData?.Flash === 'number' && exifData.Flash === 16 ? "Non utilisé" : "Utilisé",
+        },
+        "Autres propriétés": {
+            Dimensions: `${exifData?.ExifImageWidth} x ${exifData?.ExifImageHeight}`,
+            Orientation: exifData?.Orientation === 1 ? "Normale" : "Rotée",
+            EspaceColorimétrique: typeof exifData?.ColorSpace === 'number' && exifData.ColorSpace === 65535 ? "Non calibré" : exifData?.ColorSpace,
+            Gamma: exifData?.Gamma,
+            Logiciel: exifData?.Software,
+        },
+    };
 
     try {
         // Étape 1 : Insérer la photo
         const [result] = await connexion.promise().execute(
             `INSERT INTO Photo (nom, date_depot, exif, isPublic, id_utilisateur, id_utilisateur_1, légende) 
                                     VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            [nom, date_depot, exif, isPublic, userId, photographe, description]
+            [nom, date_depot, JSON.stringify(formattedData), isPublic, userId, photographe, description]
         );
 
         const photoId = (result as unknown as mysql.ResultSetHeader).insertId;
@@ -116,7 +162,7 @@ app.post('/POST/upload-photo', upload.fields([{ name: 'exif', maxCount: 1 }, { n
             );
         }
 
-        // Étape 3 : Gérer les fichiers (photo et exif)
+        // Étape 3 : Gérer le ficher photo
         const photoFile = req.files['photo'][0];
 
         // Vérification de l'existence des fichiers
@@ -124,8 +170,8 @@ app.post('/POST/upload-photo', upload.fields([{ name: 'exif', maxCount: 1 }, { n
             return res.status(500).json({ message: 'Temporary file not found' });
         }
 
-        const photoFilePath = path.join(__dirname, 'photo', `${photoId}`);
-        const minPhotoFilePath = path.join(__dirname, 'minphoto', `${photoId}`);
+        const photoFilePath = path.join(__dirname, 'photo', `${photoId}.jpg`);
+        const minPhotoFilePath = path.join(__dirname, 'minphoto', `${photoId}.jpg`);
 
         await fs.promises.mkdir(path.dirname(photoFilePath), { recursive: true });
         await fs.promises.rename(photoFile.path, photoFilePath);
@@ -135,14 +181,6 @@ app.post('/POST/upload-photo', upload.fields([{ name: 'exif', maxCount: 1 }, { n
         await sharp(photoFilePath)
             .resize(800) // Redimensionner à une largeur de 800px
             .toFile(minPhotoFilePath);
-
-        if (req.files['exif']) {
-            const exifFile = req.files['exif'][0];
-            const exifFilePath = path.join(__dirname, 'exif', `${photoId}.exif`);
-
-            await fs.promises.mkdir(path.dirname(exifFilePath), { recursive: true });
-            await fs.promises.rename(exifFile.path, exifFilePath);
-        }
 
         // Étape 4 : Retourner la réponse
         res.status(201).json({
@@ -160,7 +198,8 @@ app.post('/POST/upload-photo', upload.fields([{ name: 'exif', maxCount: 1 }, { n
                 photoFilePath,
                 minPhotoFilePath,
                 tags
-            }
+            },
+            exif : formattedData
         });
     } catch (error) {
         // Nettoyage des fichiers téléchargés en cas d'erreur
@@ -172,68 +211,7 @@ app.post('/POST/upload-photo', upload.fields([{ name: 'exif', maxCount: 1 }, { n
     }
 });
 
-// Upload d'un document PDF
-app.post('/POST/upload-document', upload.fields([{name: 'document', maxCount: 1}]), async (req, res) => {
-    if (!req.files || !('document' in req.files)) {
-        return res.status(400).json({ message: 'No document file uploaded' });
-    }
 
-    const info = JSON.parse(req.body.info);
-    const { nom, id_evenement } = info;
-    const token = req.body.token;
-
-    const tokenVerification = authenticateToken(token);
-    const date_depot = new Date();
-    const userId = getUserIdFromToken(token);
-
-    try {
-        // Étape 1 : Insérer le document dans la table
-        const [result] = await connexion.promise().execute(
-            `INSERT INTO document (nom, chemin, date_depot, id_evenement, id_utilisateur) 
-             VALUES (?, ?, ?, ?, ?)`,
-            [nom, null, date_depot, id_evenement, userId]
-        );
-
-        const documentId = (result as unknown as mysql.ResultSetHeader).insertId;
-
-        // Étape 2 : Déplacer le fichier dans le répertoir cible
-        const documentFile = req.files['document'][0];
-
-        if (!fs.existsSync(documentFile.path)) {
-            return res.status(500).json({ message: 'Temporary file not found' });
-        }
-
-        const documentFilePath = path.join(__dirname, 'documents', `${documentId}`);
-
-        await fs.promises.mkdir(path.dirname(documentFilePath), { recursive: true });
-        await fs.promises.rename(documentFile.path, documentFilePath);
-
-        // Mettre à jour le chemin du fichier dans la base de données
-        await connexion.promise().execute(
-            `UPDATE document SET chemin = ? WHERE id_document = ?`,
-            [documentFilePath, documentId]
-        );
-
-        // Étape 3 : Retourner la réponse
-        res.status(201).json({
-            message: 'Document uploaded successfully',
-            document: {
-                id_document: documentId,
-                nom,
-                chemin: documentFilePath,
-                date_depot,
-                id_evenement,
-                id_utilisateur: tokenVerification.userId
-            }
-        });
-    } catch (error) {
-        // Nettoyage des fichiers téléchargés en cas d'erreur
-        if (req.files['document']?.[0]?.path) await fs.promises.unlink(req.files['document'][0].path).catch(console.error);
-
-        console.error(error);
-        res.status(500).json({ message: 'Internal petasse Error' });
-    }
-});
 
 /*------------------------------------------PUT---------------------------------------------- */
 
@@ -332,10 +310,12 @@ app.get('/GET/tags', async (req, res) => {
     }
 });
 
-
-// récupération liste des photos triées par date de dépôt
+// récupération des photos avec pagination
 app.get('/GET/photosid', async (req, res) => {
     const token = req.query.token;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = 10;
+    const offset = (page - 1) * limit;
 
     if (!token) {
         return res.status(400).json({ message: 'Token is missing' });
@@ -348,68 +328,16 @@ app.get('/GET/photosid', async (req, res) => {
     }
 
     try {
-        const [rows]: any = await connexion.promise().query(`SELECT * FROM photo ORDER BY date_depot DESC`);
+        const [rows]: any = await connexion.promise().query(
+            `SELECT * FROM photo ORDER BY date_depot DESC LIMIT ? OFFSET ?`,
+            [limit, offset]
+        );
         res.status(200).json(rows);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
-
-// // récupération d'une photo avec sa version de moindre qualité
-// app.get('/GET/photo', async (req, res) => {
-//     const id = req.query.id;
-//     const token = req.query.token;
-
-//     if (!token) {
-//         return res.status(400).json({ message: 'Token is missing' });
-//     }
-
-//     const tokenVerification = authenticateToken(token);
-    
-//     if (!tokenVerification.valid) {
-//         return res.status(401).json({ message: 'Invalid token' });
-//     }
-
-//     try {
-//         const [rows]: any = await connexion.promise().query(
-//             `SELECT * FROM photo WHERE id_photo = ?`, 
-//             [id]
-//         );
-
-//         if (rows.length === 0) {
-//             return res.status(404).json({ message: 'Photo not found' });
-//         }
-
-//         const photo = rows[0];
-
-//         // Path to the original photo
-//         const photoPath = path.join(__dirname, 'photos', `${photo.id_photo}.jpg`);
-//         // Path to the minified version
-//         const minPhotoPath = path.join(__dirname, 'minphoto', `${photo.id_photo}.jpg`);
-
-//         if (!fs.existsSync(photoPath)) {
-//             return res.status(404).json({ message: 'Photo file not found' });
-//         }
-
-//         if (!fs.existsSync(minPhotoPath)) {
-//             return res.status(404).json({ message: 'Min photo file not found' });
-//         }
-
-//         // Send the original photo and the minified photo as files
-//         res.status(200).sendFile(minPhotoPath, (err) => {
-//             if (err) {
-//                 console.error('Error sending the min photo:', err);
-//                 res.status(500).json({ message: 'Error sending min photo' });
-//             } else {
-//                 console.log('Min photo sent successfully.');
-//             }
-//         });
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).json({ message: 'Internal Server Error' });
-//     }
-// });
 
 app.get('/GET/photo/metadata', async (req, res) => {
     const id = req.query.id;
@@ -554,6 +482,29 @@ app.get('/GET/photo/file', async (req, res) => {
 
         const photoPath = path.join(photoDirectory, photoFile);
         res.sendFile(photoPath);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// récupération des évènements
+app.get('/GET/events', async (req, res) => {
+    const token = req.query.token;
+
+    if (!token) {
+        return res.status(400).json({ message: 'Token is missing' });
+    }
+
+    const tokenVerification = authenticateToken(token);
+    
+    if (!tokenVerification.valid) {
+        return res.status(401).json({ message: 'Invalid token' });
+    }
+
+    try {
+        const [rows]: any = await connexion.promise().query(`SELECT * FROM evenement ORDER BY date_heure_debut DESC`);
+        res.status(200).json(rows);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal Server Error' });

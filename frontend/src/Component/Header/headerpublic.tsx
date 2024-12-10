@@ -19,16 +19,17 @@ const HeaderPublic: React.FC<HeaderPublicProps> = ({ setPage }) => {
             </div>
 
             {/* Menu burger visible uniquement sur petits écrans */}
-            <div className="burger-menu" onClick={toggleMenu}>
+            <button className="burger-menu" onClick={toggleMenu} onKeyDown={(e) => { if (e.key === 'Enter') toggleMenu(); }}>
                 <div className={`burger-bar ${isMenuOpen ? 'open' : ''}`}></div>
                 <div className={`burger-bar ${isMenuOpen ? 'open' : ''}`}></div>
                 <div className={`burger-bar ${isMenuOpen ? 'open' : ''}`}></div>
-            </div>
+            </button>
 
             {/* Navigation toujours visible sur grand écran et contrôlée par burger sur petits écrans */}
             <nav className={`nav-menu ${isMenuOpen ? 'open' : ''}`}>
                 <ul>
-                    <li><a href="#" onClick={() => setPage(5)}>connexion</a></li>
+                    <li><button onClick={() => setPage(3)}>inscription</button></li>
+                    <li><button onClick={() => setPage(5)}>connexion</button></li>
                 </ul>
             </nav>
         </header>

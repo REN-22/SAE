@@ -34,10 +34,8 @@ const Uploadphoto: React.FC<UploadphotoProps> = ({ setPage }) => {
 
         const formData = new FormData();
         const photo = (document.querySelector('input[type="file"][accept="image/*"]') as HTMLInputElement).files?.[0];
-        const exif = (document.querySelector('input[type="file"][accept=".exif"]') as HTMLInputElement).files?.[0];
 
         if (photo) formData.append('photo', photo);
-        if (exif) formData.append('exif', exif);
 
         formData.append('info', JSON.stringify({
             nom: nomphoto,
@@ -46,6 +44,7 @@ const Uploadphoto: React.FC<UploadphotoProps> = ({ setPage }) => {
             photographe,
             tags: selectedTags.map(tag => tag.id_mot_cle), // On envoie les IDs des tags sélectionnés
         }));
+
         formData.append('token', token ?? '');
 
         try {
@@ -118,7 +117,6 @@ const Uploadphoto: React.FC<UploadphotoProps> = ({ setPage }) => {
         <div className='uploadphoto'>
             <h1>Uploadphoto</h1>
             <input type="file" accept="image/*" />
-            <input type="file" accept=".exif" />
             <input
                 type="text"
                 placeholder="Nom de la photo"

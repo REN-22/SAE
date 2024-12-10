@@ -22,8 +22,6 @@ const Post: React.FC<PostProps> = ({ idPhoto }) => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
-    console.log('idPhoto :', idPhoto);
-
     useEffect(() => {
         const fetchMetadataAndPhoto = async () => {
             try {

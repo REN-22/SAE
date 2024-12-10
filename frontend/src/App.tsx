@@ -11,6 +11,8 @@ import Document from './Component/ZoneDocument/Document'
 import PageStart from './Component/PagedeConnexion/PageStart'
 import Ami from './Component/ZoneAmi/Ami'
 import HeaderPublic from './Component/Header/headerpublic'
+import Calendrier from './Component/evenement/calendrier'
+import AjoutEvent from './Component/evenement/ajoutevent'
 
 //CPT
 function App() {
@@ -49,7 +51,6 @@ function App() {
   return (
     <>
     <div>
-  
     {isConnected === true && (
       <HeaderInterne 
       setPage={setPage}/>
@@ -81,18 +82,6 @@ function App() {
           setPage={setPage}
           setIsConnected={setIsConnected} 
           isConnected />
-      )}
-      {page === 6 && (
-        <Document
-          setPage={setPage} />
-      )}
-      {page === 7 && (
-        <PageStart
-          setPage={setPage} />
-      )}
-      {page === 8 && (
-        <Ami
-          setPage={setPage} />
       )}
     </div>
     </>
