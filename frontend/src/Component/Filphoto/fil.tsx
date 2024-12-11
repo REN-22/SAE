@@ -59,6 +59,7 @@ const Fil: React.FC<FilProps> = ({ setPage }) => {
 
   return (
     <div className="superpostcom">
+      <button onClick={() => setPage(4)}>nouveau post</button>
       <div className="postcom">
         <div className="superpost">
           {posts.map((post) => (
@@ -66,22 +67,21 @@ const Fil: React.FC<FilProps> = ({ setPage }) => {
               <Post idPhoto={post.id_photo} toggleAffcom={toggleAffcom} />
               <div style={{ display: "flex", justifyContent: "space-between", marginTop: "8px" }}>
               </div>
-              {affcom && idphotopourcom === post.id_photo && (
-                <div className="commentairelist">
-                  <CommentairesTotal idPhoto={idphotopourcom} />
-                </div>
-              )}
             </div>
           ))}
         </div>
-        <div className="pagination">
-          <button onClick={prevPage} disabled={filpage === 1}>Précédent</button>
-          <span>Page {filpage}</span>
-          <button onClick={nextPage}>Suivant</button>
-        </div>
+        {affcom && (
+          <div className="commentairelist">
+            <CommentairesTotal idPhoto={idphotopourcom} />
+          </div>
+        )}
+      </div>
+      <div className="pagination">
+        <button onClick={prevPage} disabled={filpage === 1}>Précédent</button>
+        <span>Page {filpage}</span>
+        <button onClick={nextPage}>Suivant</button>
       </div>
     </div>
   );
 }
-
 export default Fil;

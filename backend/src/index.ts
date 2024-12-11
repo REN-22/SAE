@@ -176,14 +176,6 @@ app.post('/POST/upload-photo', upload.fields([{ name: 'photo', maxCount: 1 }]), 
         await fs.promises.mkdir(path.dirname(photoFilePath), { recursive: true });
         await fs.promises.rename(photoFile.path, photoFilePath);
 
-        // Redimensionner la photo de base à une taille maximale de 2048x2048
-        await sharp(photoFilePath)
-            .resize(2048, 2048, {
-                fit: sharp.fit.inside,
-                withoutEnlargement: true
-            })
-            .toFile(photoFilePath);
-
         // Créer une version de qualité réduite de la photo
         await fs.promises.mkdir(path.dirname(minPhotoFilePath), { recursive: true });
         await sharp(photoFilePath)
@@ -219,6 +211,43 @@ app.post('/POST/upload-photo', upload.fields([{ name: 'photo', maxCount: 1 }]), 
     }
 });
 
+// création d'un évènement
+app.post('/POST/create-event', async (req, res) => {
+    const { date_heure_debut, date_heure_fin, titre, descriptif, lieu, type} = req.body.data;
+    const token = req.body.token;
+
+    const tokenVerification = authenticateToken(token);
+    if (!tokenVerification.valid) {
+        return res.status(401).json({ message: 'Invalid token' });
+    }
+
+    const userId = getUserIdFromToken(token);
+
+    try {
+        const [result] = await connexion.promise().execute(
+            `INSERT INTO evenement (date_heure_debut, date_heure_fin, titre, descriptif, lieu, type, id_utilisateur) 
+             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [date_heure_debut, date_heure_fin, titre, descriptif, lieu, type, userId]
+        );
+
+        res.status(201).json({
+            message: 'Event created successfully',
+            event: {
+                id_evenement: (result as unknown as mysql.ResultSetHeader).insertId,
+                date_heure_debut,
+                date_heure_fin,
+                titre,
+                descriptif,
+                lieu,
+                type,
+                id_utilisateur: userId
+            }
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
 
 // création d'un commentaire
 app.post('/POST/create-comment', async (req, res) => {
