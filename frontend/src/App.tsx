@@ -7,13 +7,16 @@ import Profil from './Component/pageutilisateur/profil'
 import HeaderInterne from './Component/Header/headerinterne'
 import Uploadphoto from './Component/uploadphoto/uploadphoto'
 import Connexion from './Component/PagedeConnexion/Connexion'
+import Document from './Component/ZoneDocument/Document'
+import PageStart from './Component/PagedeConnexion/PageStart'
+import Ami from './Component/ZoneAmi/Ami'
 import HeaderPublic from './Component/Header/headerpublic'
 import Calendrier from './Component/evenement/calendrier'
 import AjoutEvent from './Component/evenement/ajoutevent'
 
 //CPT
 function App() {
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(7);
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
@@ -79,15 +82,6 @@ function App() {
           setPage={setPage}
           setIsConnected={setIsConnected} 
           isConnected />
-      )}
-
-      {page === 7 && (
-        <Calendrier
-          setPage={setPage} />
-      )}
-      {page === 8 && (
-        <AjoutEvent
-          setPage={setPage} />
       )}
     </div>
     </>

@@ -1,5 +1,5 @@
 import connexion from './db_connexion';
-import express from 'express';
+import express, { Request, Response } from 'express';
 import mysql from 'mysql2/promise';
 import { hashPassword, comparePassword } from './hashage';
 import { generateToken, authenticateToken, getUserIdFromToken } from './jwt';
@@ -219,43 +219,6 @@ app.post('/POST/upload-photo', upload.fields([{ name: 'photo', maxCount: 1 }]), 
     }
 });
 
-// création d'un évènement
-app.post('/POST/create-event', async (req, res) => {
-    const { date_heure_debut, date_heure_fin, titre, descriptif, lieu, type} = req.body.data;
-    const token = req.body.token;
-
-    const tokenVerification = authenticateToken(token);
-    if (!tokenVerification.valid) {
-        return res.status(401).json({ message: 'Invalid token' });
-    }
-
-    const userId = getUserIdFromToken(token);
-
-    try {
-        const [result] = await connexion.promise().execute(
-            `INSERT INTO evenement (date_heure_debut, date_heure_fin, titre, descriptif, lieu, type, id_utilisateur) 
-             VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            [date_heure_debut, date_heure_fin, titre, descriptif, lieu, type, userId]
-        );
-
-        res.status(201).json({
-            message: 'Event created successfully',
-            event: {
-                id_evenement: (result as unknown as mysql.ResultSetHeader).insertId,
-                date_heure_debut,
-                date_heure_fin,
-                titre,
-                descriptif,
-                lieu,
-                type,
-                id_utilisateur: userId
-            }
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Internal Server Error' });
-    }
-});
 
 // création d'un commentaire
 app.post('/POST/create-comment', async (req, res) => {
@@ -699,5 +662,142 @@ app.get('/GET/commentaire', async (req, res) => {
 });
 
 
+// récupération des IDs des commentaires triés du plus récent au plus ancien
+app.get('/GET/commentaires', async (req, res) => {
+    const id = req.query.id_photo;
+    const token = req.query.token;
+
+    if (!token) {
+        return res.status(400).json({ message: 'Token is missing' });
+    }
+
+    const tokenVerification = authenticateToken(token);
+    
+    if (!tokenVerification.valid) {
+        return res.status(401).json({ message: 'Invalid token' });
+    }
+
+    if (!id || isNaN(Number(id))) {
+        return res.status(400).json({ message: 'Invalid or missing id_photo parameter' });
+    }    
+
+    try {
+        const [commentIds]: any = await connexion.promise().query(
+            `SELECT id_commentaire_p FROM commentaire_p WHERE id_photo = ? ORDER BY date_heure DESC`,
+            [id]
+        );
+
+        if (commentIds.length === 0) {
+            return res.status(404).json({ message: 'No comments found for this photo' });
+        }
+
+        res.status(200).json({
+            commentIds: commentIds.map((row: any) => row.id_commentaire_p)
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal pd Error' });
+    }
+});
+
+// récupération d'un commentaire avec l'utilisateur associé
+app.get('/GET/commentaire', async (req, res) => {
+    const { id, token } = req.query;
+
+    // Vérification du token
+    if (!token) {
+        return res.status(400).json({ message: 'Token is missing' });
+    }
+
+    const tokenVerification = authenticateToken(token as string);
+    if (!tokenVerification.valid) {
+        return res.status(401).json({ message: 'Invalid token' });
+    }
+
+    // Validation de l'ID
+    if (!id || isNaN(Number(id))) {
+        return res.status(400).json({ message: 'Invalid or missing id parameter' });
+    }
+
+    try {
+        // Récupérer le commentaire et l'utilisateur associé en une seule requête
+        const [rows]: any = await connexion.promise().query(
+            `
+            SELECT 
+                c.id_commentaire_p AS id, 
+                c.texte, 
+                c.date_heure, 
+                u.pseudo 
+            FROM 
+                commentaire_p c
+            JOIN 
+                utilisateur u 
+            ON 
+                c.id_utilisateur = u.id_utilisateur
+            WHERE 
+                c.id_commentaire_p = ?
+            `,
+            [id]
+        );
+
+        // Formater la date en JJ MM AAAA HH:MM:SS
+        rows.forEach((row: any) => {
+            const date = new Date(row.date_heure);
+            const formattedDate = date.toLocaleString('fr-FR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+            });
+            row.date_heure = formattedDate;
+        });
+        
+        // Vérification si le commentaire existe
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Comment not found' });
+        }
+
+        // Retourner le commentaire au frontend
+        res.status(200).json(rows[0]);
+    } catch (error) {
+        console.error('Database Error:', (error as Error).message);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+
+/* Profil Utilisateur */
+app.get('/GET/utilisateur', async (req, res) => {
+    const token = req.query.token;
+
+    if (!token) {
+        return res.status(400).json({ message: 'Token is missing' });
+    }
+
+    const tokenVerification = authenticateToken(token);
+    
+    if (!tokenVerification || !tokenVerification.valid) {
+        return res.status(401).json({ message: 'Invalid token' });
+    }
+
+    try {
+        const userid = getUserIdFromToken(token);
+        const [rows]: any = await connexion.promise().query('SELECT nom, prenom, email, telephone FROM utilisateur WHERE id = ?', [userid]);
+
+        // Vérification si l'utilisateur existe
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Envoi des informations utilisateur
+        res.status(200).json(rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+})
 
 /*-----------------------------------------DELETE---------------------------------------------- */

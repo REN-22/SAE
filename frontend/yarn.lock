@@ -3748,17 +3748,7 @@ data-view-byte-offset@^1.0.0:
     es-errors "^1.3.0"
     is-data-view "^1.0.1"
 
-date-arithmetic@^4.1.0:
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/date-arithmetic/-/date-arithmetic-4.1.0.tgz#e5d6434e9deb71f79760a37b729e4a515e730ddf"
-  integrity sha512-QWxYLR5P/6GStZcdem+V1xoto6DMadYWpMXU82ES3/RfR3Wdwr3D0+be7mgOJ+Ov0G9D5Dmb9T17sNLQYj9XOg==
-
-dayjs@^1.11.7:
-  version "1.11.13"
-  resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.11.13.tgz#92430b0139055c3ebb60150aa13e860a4b5a366c"
-  integrity sha512-oaMBel6gjolK862uaPQOVTA7q3TZhuSvuMQAAglQDOWYO9A91IrAOUJEyKVlqJlHE0vq5p5UXxzdPfMH/x6xNg==
-
-debug@2.6.9, debug@^2.6.0:
+debug@^2.6.0:
   version "2.6.9"
   resolved "https://registry.npmjs.org/debug/-/debug-2.6.9.tgz"
   integrity sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==
@@ -3863,14 +3853,9 @@ depd@2.0.0:
   resolved "https://registry.npmjs.org/depd/-/depd-2.0.0.tgz"
   integrity sha512-g7nH6P6dyDioJogAAGprGpCtVImJhpPk/roCzdb3fIh61/s/nPsfR6onyMwkCAR/OlC3yBC0lESvUoQEAssIrw==
 
-depd@~1.1.2:
-  version "1.1.2"
-  resolved "https://registry.npmjs.org/depd/-/depd-1.1.2.tgz"
-  integrity sha512-7emPTl6Dpo6JRXOXjLRxck+FlLRX5847cLKEn00PLAgc3g2hTZZgr+e4c2v6QpSmLeFP3n5yUo7ft6avBK/5jQ==
-
 dequal@^2.0.3:
   version "2.0.3"
-  resolved "https://registry.yarnpkg.com/dequal/-/dequal-2.0.3.tgz#2644214f1997d39ed0ee0ece72335490a7ac67be"
+  resolved "https://registry.npmjs.org/dequal/-/dequal-2.0.3.tgz"
   integrity sha512-0je+qPKHEMohvfRTCEo3CrPG6cAzAYgmzKyxRiYSSDkS6eGJdyVJm7WaYA5ECaAD9wLB2T4EEeymA5aFVcYXCA==
 
 destroy@1.2.0:
@@ -3956,21 +3941,18 @@ dom-converter@^0.2.0:
   dependencies:
     utila "~0.4"
 
-dom-helpers@^5.2.0, dom-helpers@^5.2.1:
-  version "5.2.1"
-  resolved "https://registry.yarnpkg.com/dom-helpers/-/dom-helpers-5.2.1.tgz#d9400536b2bf8225ad98fe052e029451ac40e902"
-  integrity sha512-nRCa7CK3VTrM2NmGkIy4cbK7IZlgBE/PYMn55rrXefr5xXDP0LdtfPnblFDoVdcAfslJ7or6iqAUnx0CCGIWQA==
+dom-serializer@^1.0.1:
+  version "1.4.1"
+  resolved "https://registry.npmjs.org/dom-serializer/-/dom-serializer-1.4.1.tgz"
+  integrity sha512-VHwB3KfrcOOkelEG2ZOfxqLZdfkil8PtJi4P8N2MMXucZq2yLp75ClViUlOVwyoHEDjYU433Aq+5zWP61+RGag==
   dependencies:
     "@babel/runtime" "^7.8.7"
     csstype "^3.0.2"
 
-dom-serializer@0:
-  version "0.2.2"
-  resolved "https://registry.npmjs.org/dom-serializer/-/dom-serializer-0.2.2.tgz"
-  integrity sha512-2/xPb3ORsQ42nHYiSunXkDjPLBaEj/xTwUO4B7XCZQTRk7EBtTOPaygh10YAAh2OI1Qrp6NWfpAhzswj0ydt9g==
-  dependencies:
-    domelementtype "^2.0.1"
-    entities "^2.0.0"
+domelementtype@1:
+  version "1.3.1"
+  resolved "https://registry.npmjs.org/domelementtype/-/domelementtype-1.3.1.tgz"
+  integrity sha512-BSKB+TSpMpFI/HOxCNr1O8aMOTZ8hT3pM3GQ0w/mWRmkhEDSFJkkyzz4XQsBV44BChwGkrDfMyjVD0eA2aFV3w==
 
 dom-serializer@^1.0.1:
   version "1.4.1"
@@ -3985,11 +3967,6 @@ domelementtype@1:
   version "1.3.1"
   resolved "https://registry.npmjs.org/domelementtype/-/domelementtype-1.3.1.tgz"
   integrity sha512-BSKB+TSpMpFI/HOxCNr1O8aMOTZ8hT3pM3GQ0w/mWRmkhEDSFJkkyzz4XQsBV44BChwGkrDfMyjVD0eA2aFV3w==
-
-domelementtype@^2.0.1, domelementtype@^2.2.0:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/domelementtype/-/domelementtype-2.3.0.tgz"
-  integrity sha512-OLETBj6w0OsagBwdXnPdN0cnMfF9opN69co+7ZrbfPGrdpPVNBUj02spi6B1N7wChLQiPn4CSH/zJvXw56gmHw==
 
 domexception@^2.0.1:
   version "2.0.1"
@@ -5413,12 +5390,10 @@ internal-slot@^1.0.4, internal-slot@^1.0.7:
     hasown "^2.0.0"
     side-channel "^1.0.4"
 
-invariant@^2.2.4:
-  version "2.2.4"
-  resolved "https://registry.yarnpkg.com/invariant/-/invariant-2.2.4.tgz#610f3c92c9359ce1db616e538008d23ff35158e6"
-  integrity sha512-phJfQVBuaJM5raOpJjSfkiD6BpbCE4Ns//LaXl6wGYtUBY83nWS6Rf9tXm2e8VaK60JEjYldbPif/A2B1C2gNA==
-  dependencies:
-    loose-envify "^1.0.0"
+ipaddr.js@^2.0.1:
+  version "2.2.0"
+  resolved "https://registry.npmjs.org/ipaddr.js/-/ipaddr.js-2.2.0.tgz"
+  integrity sha512-Ag3wB2o37wslZS19hZqorUnrnzSkpOVy+IiiDEiTqNubEYpYuHWIf6K4psgN2ZWKExS4xhVCrRVfb/wfW8fWJA==
 
 ipaddr.js@1.9.1:
   version "1.9.1"
@@ -6797,17 +6772,10 @@ mkdirp@~0.5.1:
   dependencies:
     minimist "^1.2.6"
 
-moment-timezone@^0.5.40, moment-timezone@^0.5.46:
-  version "0.5.46"
-  resolved "https://registry.yarnpkg.com/moment-timezone/-/moment-timezone-0.5.46.tgz#a21aa6392b3c6b3ed916cd5e95858a28d893704a"
-  integrity sha512-ZXm9b36esbe7OmdABqIWJuBBiLLwAjrN7CE+7sYdCCx82Nabt1wHDj8TVseS59QIlfFPbOoiBPm6ca9BioG4hw==
-  dependencies:
-    moment "^2.29.4"
-
-moment@^2.29.4, moment@^2.30.1:
-  version "2.30.1"
-  resolved "https://registry.yarnpkg.com/moment/-/moment-2.30.1.tgz#f8c91c07b7a786e30c59926df530b4eac96974ae"
-  integrity sha512-uEmtNhbDOrWPFS+hdjFCBfy9f2YoyzRpwcl+DqpC6taX21FzsTLQVbMV/W7PzNSX6x/bhC1zA3c2UQ5NzH6how==
+ms@^2.1.1, ms@^2.1.3, ms@2.1.3:
+  version "2.1.3"
+  resolved "https://registry.npmjs.org/ms/-/ms-2.1.3.tgz"
+  integrity sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==
 
 ms@2.0.0:
   version "2.0.0"
@@ -8070,31 +8038,7 @@ react-is@^18.0.0:
   resolved "https://registry.npmjs.org/react-is/-/react-is-18.3.1.tgz"
   integrity sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==
 
-react-lifecycles-compat@^3.0.4:
-  version "3.0.4"
-  resolved "https://registry.yarnpkg.com/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz#4f1a273afdfc8f3488a8c516bfda78f872352362"
-  integrity sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==
-
-react-moment@^1.1.3:
-  version "1.1.3"
-  resolved "https://registry.yarnpkg.com/react-moment/-/react-moment-1.1.3.tgz#829b21dfb279aa6db47ce4f1ac2555af17a1bcdc"
-  integrity sha512-8EPvlUL8u6EknPp1ISF5MQ3wx2OHJVXIP/iZc4wRh3iV3XozftZERDv9ANZeAtMlhNNQHdFoqcZHFUkBSTONfA==
-
-react-overlays@^5.2.1:
-  version "5.2.1"
-  resolved "https://registry.yarnpkg.com/react-overlays/-/react-overlays-5.2.1.tgz#49dc007321adb6784e1f212403f0fb37a74ab86b"
-  integrity sha512-GLLSOLWr21CqtJn8geSwQfoJufdt3mfdsnIiQswouuQ2MMPns+ihZklxvsTDKD3cR2tF8ELbi5xUsvqVhR6WvA==
-  dependencies:
-    "@babel/runtime" "^7.13.8"
-    "@popperjs/core" "^2.11.6"
-    "@restart/hooks" "^0.4.7"
-    "@types/warning" "^3.0.0"
-    dom-helpers "^5.2.0"
-    prop-types "^15.7.2"
-    uncontrollable "^7.2.1"
-    warning "^4.0.3"
-
-react-refresh@^0.11.0:
+react-refresh@^0.11.0, "react-refresh@>=0.10.0 <1.0.0":
   version "0.11.0"
   resolved "https://registry.npmjs.org/react-refresh/-/react-refresh-0.11.0.tgz"
   integrity sha512-F27qZr8uUqwhWZboondsPx8tnC3Ct3SxZA3V5WyEvujRyyNv0VYPhoBg1gZ8/MV5tubQp76Trw8lTv9hzRBa+A==

@@ -17,9 +17,13 @@ const HeaderInterne: React.FC<HeaderInterneProps> = ({ setPage }) => {
         setPage(5);
     }
 
+    const handleLogoClick = () => {
+        setPage(1); // Redirige vers la page 1 lorsque l'image du logo est cliquée
+    }
+
     return (
         <header className="header">
-            <div className="logo">
+            <div className="logo" onClick={handleLogoClick}>
                 <img src={require('../../images/logo.png')} alt="Club Logo" />
             </div>
 
@@ -38,6 +42,7 @@ const HeaderInterne: React.FC<HeaderInterneProps> = ({ setPage }) => {
                     {/* <li><button onClick={() => setPage(1)}>Profile</button></li>
                     <li><button onClick={() => setPage(1)}>options</button></li> */}
                     <li><button onClick={handleLogout}>déconnexion</button></li>
+>>>>>>> b18e6bf5ddc67686bef89de95d5e587dccd77a23
                 </ul>
             </nav>
         </header>
