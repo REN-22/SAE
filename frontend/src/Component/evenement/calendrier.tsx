@@ -83,7 +83,6 @@ const Calendrier: React.FC<CalendrierProps> = ({ setPage }) => {
     return (
         <>
             <div>
-                <button onClick={() => setPage(1)}>Retour</button>
                 <button onClick={() => setPage(8)}>Ajouter un évènement</button>
             </div>
             <div style={{ height: '100vh' }}>

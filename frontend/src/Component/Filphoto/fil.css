@@ -20,7 +20,7 @@
 
 .post {
     margin-right: auto;
-    border: 1px solid #ccc;
+    border: 2px solid #5f5f5f;
     padding: 16px;
     border-radius: 8px;
     max-width: 400px;
@@ -29,21 +29,21 @@
 
 .commentairelist {
     width: 700px;
-    border: 1px solid #ccc;
+    border: 2px solid #5f5f5f;
     padding: 16px;
     border-radius: 8px;
     margin: 16px;
 }
 
 .commentaire {
-    border: 1px solid #ccc;
+    border: 2px solid #5f5f5f;
     padding: 6px;
     margin-left: auto;
     border-radius: 8px;
     margin-top: 16px;
 }
 .ajoutcom {
-    border: 1px solid #ccc;
+    border: 2px solid #5f5f5f;
     padding: 0; /* Met à 0 pour que le bouton prenne tout l'espace */
     border-radius: 8px;
     margin: 16px; 
@@ -65,5 +65,3 @@
 .bouttoncoms:hover {
     background: #333;
 }
-
-

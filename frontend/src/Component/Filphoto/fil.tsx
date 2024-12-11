@@ -13,10 +13,18 @@ const Fil: React.FC<FilProps> = ({ setPage }) => {
   const [posts, setPosts] = React.useState<{ id_photo: number }[]>([]);
   const [filpage, setFilpage] = React.useState(1);
   const token = localStorage.getItem('phototoken');
+  const [idphotopourcom, setIdphotopourcom] = React.useState(0);
+  const [idphototoggleAffcom, setIdphototoggleAffcom] = React.useState(0);
 
-  const toggleAffcom = () => {
-    setAffcom(!affcom);
+  const toggleAffcom = (id_photo:number) => {
+    if (id_photo === idphototoggleAffcom && affcom === true) {
+      setAffcom(false);
+    } else {
+    setAffcom(true);
+    setIdphototoggleAffcom(id_photo);
+    setIdphotopourcom(id_photo);
     console.log("Toggle comments visibility:", !affcom);
+    }
   };
 
   const nextPage = () => {
@@ -56,18 +64,17 @@ const Fil: React.FC<FilProps> = ({ setPage }) => {
         <div className="superpost">
           {posts.map((post) => (
             <div className="post" key={post.id_photo}>
-              <Post idPhoto={post.id_photo} />
+              <Post idPhoto={post.id_photo} toggleAffcom={toggleAffcom}/>
               <div style={{ display: "flex", justifyContent: "space-between", marginTop: "8px" }}>
-                <button className="bouttoncoms" onClick={toggleAffcom}>
-                  Commenter <span>0</span>
-                </button>
               </div>
             </div>
           ))}
         </div>
         {affcom && (
           <div className="commentairelist">
-            <CommentairesTotal />
+            <CommentairesTotal 
+            idPhoto={idphotopourcom}
+            />
           </div>
         )}
       </div>

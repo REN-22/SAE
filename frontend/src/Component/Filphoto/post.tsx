@@ -1,8 +1,10 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import "./post.css";
 
 interface PostProps {
     idPhoto: number;
+    toggleAffcom: (id_Photo: number) => void;
 }
 
 interface PhotoMetadata {
@@ -16,7 +18,7 @@ interface PhotoMetadata {
     tags: string[];
 }
 
-const Post: React.FC<PostProps> = ({ idPhoto }) => {
+const Post: React.FC<PostProps> = ({ idPhoto, toggleAffcom }) => {
     const [metadata, setMetadata] = useState<PhotoMetadata | null>(null);
     const [photoUrl, setPhotoUrl] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
@@ -140,12 +142,7 @@ const Post: React.FC<PostProps> = ({ idPhoto }) => {
                     metadata.tags.map((tag) => (
                         <span
                             key={`${metadata.id}-${tag}`}
-                            style={{
-                                padding: "4px 8px",
-                                background: "#eee",
-                                borderRadius: "4px",
-                                fontSize: "14px",
-                            }}
+                            className="tag"
                         >
                             #{tag}
                         </span>
@@ -159,6 +156,9 @@ const Post: React.FC<PostProps> = ({ idPhoto }) => {
             <p>
                 <strong>Description:</strong> {metadata.description ?? "Aucune description disponible."}
             </p>
+            <button className="bouttoncoms" onClick={() => toggleAffcom(idPhoto)}>
+                  Commenter <span>0</span>
+            </button>
         </div>
     );
 }; 

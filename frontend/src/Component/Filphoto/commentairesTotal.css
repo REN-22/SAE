@@ -10,3 +10,8 @@
     cursor: pointer; /* Pointeur pour indiquer un bouton cliquable */
     box-sizing: border-box; /* Assurer que padding et bordure sont inclus dans la taille totale */
 }
+
+ .auteur {
+    color: #ff9000; /* Couleur orange */
+    font-weight: bold; /* Texte en gras */
+ }
