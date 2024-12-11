@@ -1,0 +1,114 @@
+/* Base styles */
+body {
+    font-family: Arial, Helvetica, sans-serif; /* Police sans-serif classique */
+    background-color: #000000; /* Noir foncé */
+    color: #ffffff; /* Texte blanc */
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Header */
+  header {
+    background-color: #000000; /* Noir pur */
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  header a {
+    color: #fd2020;
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0 10px;
+  }
+  
+  header a:hover {
+    color: #ff9000; /* Orange vif */
+  }
+  
+  /* Buttons */
+  button {
+    background-color: #ff9000; /* Orange vif */
+    border: none;
+    padding: 10px 20px;
+    color: #000000; /* Noir */
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
+  button:hover {
+    background-color: #cc7a00; /* Orange foncé */
+  }
+  
+  /* Links */
+  a {
+    color: #ff9000; /* Orange vif */
+    text-decoration: none;
+  }
+  
+  a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Card or container */
+  .card {
+    background-color: #2a2a2a; /* Gris foncé */
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .card h2 {
+    color: #ff9900; /* Orange vif */
+  }
+  
+  .card p {
+    color: #cccccc; /* Gris clair */
+  }
+  
+  /* H1 styles */
+  h1 {
+    font-size: 2rem; /* Taille de la police importante */
+    color: #ff9000; /* Orange vif */
+    font-weight: bold;
+    text-align: center; /* Centrer le texte */
+    text-transform: uppercase; /* Tout en majuscules */
+    margin: 20px 0; /* Marges autour */
+    letter-spacing: 2px; /* Espacement entre les lettres */
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5); /* Ombre légère */
+  }
+
+  /* supplantation du css du module React-big-calendar */
+  .rbc-today {
+    background-color: #423e39;
+    color: #000000;
+  }
+
+  .rbc-off-range-bg {
+    background-color: #2a2a2a;
+    color: #ff9000;
+  }
+
+  .rbc-event, .rbc-day-slot .rbc-background-event {
+    background-color: #ff9000;
+    color: #000000;
+  }
+
+  .rbc-toolbar button:active, .rbc-toolbar button.rbc-active {
+    background-color: #ff9000;
+    color: #000000;
+  }
+
+  .rbc-toolbar button:hover {
+    background-color: #cc7a00;
+    color: #000000;
+  }
+
+  .rbc-toolbar button:active:hover, .rbc-toolbar button:active:focus, .rbc-toolbar button.rbc-active:hover, .rbc-toolbar button.rbc-active:focus {
+    background-color: #ff9000;
+    color: #000000;
+  }
