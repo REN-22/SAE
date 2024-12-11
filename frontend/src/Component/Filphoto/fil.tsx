@@ -59,46 +59,26 @@ const Fil: React.FC<FilProps> = ({ setPage }) => {
 
   return (
     <div className="superpostcom">
-<<<<<<< HEAD
-      <div className="MenuFil">
-            <button onClick={() => setPage(4)}>Nouveau Post</button>
-            <button onClick={() => setPage(6)}>Documents Consultable</button>
-            <button onClick={() => setPage(8)}>Ami(e)s</button>
-        </div>
-    <div className="postcom">
-      <div className="superpost">
-      {posts.map((post) => (
-        <div className="post" key={post.id_photo}>
-        <Post idPhoto={post.id_photo} />
-        <div style={{ display: "flex", justifyContent: "space-between", marginTop: "8px" }}>
-          <button className="bouttoncoms" onClick={toggleAffcom}>
-          Commenter <span>0</span>
-          </button>
-=======
-      <button onClick={() => setPage(4)}>nouveau post</button>
       <div className="postcom">
         <div className="superpost">
           {posts.map((post) => (
             <div className="post" key={post.id_photo}>
-              <Post idPhoto={post.id_photo} toggleAffcom={toggleAffcom}/>
+              <Post idPhoto={post.id_photo} toggleAffcom={toggleAffcom} />
               <div style={{ display: "flex", justifyContent: "space-between", marginTop: "8px" }}>
               </div>
+              {affcom && idphotopourcom === post.id_photo && (
+                <div className="commentairelist">
+                  <CommentairesTotal idPhoto={idphotopourcom} />
+                </div>
+              )}
             </div>
           ))}
->>>>>>> b18e6bf5ddc67686bef89de95d5e587dccd77a23
         </div>
-        {affcom && (
-          <div className="commentairelist">
-            <CommentairesTotal 
-            idPhoto={idphotopourcom}
-            />
-          </div>
-        )}
-      </div>
-      <div className="pagination">
-        <button onClick={prevPage} disabled={filpage === 1}>Précédent</button>
-        <span>Page {filpage}</span>
-        <button onClick={nextPage}>Suivant</button>
+        <div className="pagination">
+          <button onClick={prevPage} disabled={filpage === 1}>Précédent</button>
+          <span>Page {filpage}</span>
+          <button onClick={nextPage}>Suivant</button>
+        </div>
       </div>
     </div>
   );
