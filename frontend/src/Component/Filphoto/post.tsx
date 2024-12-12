@@ -84,9 +84,9 @@ const Post: React.FC<PostProps> = ({ idPhoto, toggleAffcom }) => {
 
                 // Récupérer le fichier photo
                 const fileResponse = await axios.get(
-                    "http://localhost:5000/GET/photo/file",
+                    "http://localhost:5000/GET/photo/filemin",
                     {
-                        params: { token, id: idPhoto },
+                        params: { id: idPhoto },
                         responseType: "blob", // Important pour récupérer un fichier
                     }
                 );

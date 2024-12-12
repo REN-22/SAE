@@ -521,19 +521,9 @@ app.get('/GET/photo/tags', async (req, res) => {
     }
 });
 
-app.get('/GET/photo/file', async (req, res) => {
+// récupération miniature des photos
+app.get('/GET/photo/filemin', async (req, res) => {
     const id = req.query.id;
-    const token = req.query.token;
-
-    if (!token) {
-        return res.status(400).json({ message: 'Token is missing' });
-    }
-
-    const tokenVerification = authenticateToken(token);
-    
-    if (!tokenVerification.valid) {
-        return res.status(401).json({ message: 'Invalid token' });
-    }
 
     try {
         const [rows]: any = await connexion.promise().query(
@@ -808,7 +798,7 @@ app.get('/GET/utilisateur', async (req, res) => {
 
     const tokenVerification = authenticateToken(token);
     
-    if (!tokenVerification || !tokenVerification.valid) {
+    if (!tokenVerification?.valid) {
         return res.status(401).json({ message: 'Invalid token' });
     }
 
@@ -828,5 +818,17 @@ app.get('/GET/utilisateur', async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 })
+
+// récupération id photos publique aléatoire pour la page d'accueil
+app.get('/GET/random-photos', async (req, res) => {
+    try {
+        const [rows]: any = await connexion.promise().query(`SELECT DISTINCT id_photo FROM photo WHERE isPublic = 1 ORDER BY RAND() LIMIT 6`);
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
 
 /*-----------------------------------------DELETE---------------------------------------------- */

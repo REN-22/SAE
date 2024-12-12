@@ -10,10 +10,11 @@ import Connexion from './Component/PagedeConnexion/Connexion'
 import HeaderPublic from './Component/Header/headerpublic'
 import Calendrier from './Component/evenement/calendrier'
 import AjoutEvent from './Component/evenement/ajoutevent'
+import PagePrésentation from './Component/Pagedeprésentation/pagePrésentation'
 
 //CPT
 function App() {
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(0);
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
@@ -58,6 +59,9 @@ function App() {
     )}
     </div>
     <div className='page-content'>
+      {page === 0 && (
+        <PagePrésentation />
+      )}
       {page === 1 && (
         <Fil
           setPage={setPage} />
