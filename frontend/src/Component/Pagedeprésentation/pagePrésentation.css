@@ -1,0 +1,32 @@
+.photos-container {
+    display: grid;
+    gap: 10px; /* Espace entre les images */
+  }
+  
+  .photos-container img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+  
+/* Configuration pour les grands écrans (bureau) */
+@media (min-width: 768px) {
+    .photos-container {
+        grid-template-columns: repeat(6, 1fr); /* 6 colonnes */
+    }
+}
+
+/* Configuration pour les écrans moyens (tablette) */
+@media (min-width: 481px) and (max-width: 767px) {
+    .photos-container {
+        grid-template-columns: repeat(3, 1fr); /* 3 colonnes */
+    }
+}
+
+/* Configuration pour les petits écrans (mobile) */
+@media (max-width: 480px) {
+    .photos-container {
+        grid-template-columns: repeat(2, 1fr); /* 2 colonnes */
+    }
+}
+  
