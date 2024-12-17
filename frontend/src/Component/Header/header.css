@@ -100,7 +100,7 @@
         background-color: transparent;
         box-shadow: none;
         padding: 0;
-        z-index: 1000;
+        z-index: 4;
     }
 
     .nav-menu ul {

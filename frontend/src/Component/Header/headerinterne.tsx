@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './header.css';
+import axios from 'axios';
 
 interface HeaderInterneProps {
     setPage: (page: number) => void;
@@ -7,6 +8,8 @@ interface HeaderInterneProps {
 
 const HeaderInterne: React.FC<HeaderInterneProps> = ({ setPage }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
+    const token = localStorage.getItem('phototoken');
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
@@ -18,8 +21,29 @@ const HeaderInterne: React.FC<HeaderInterneProps> = ({ setPage }) => {
     }
 
     const handleLogoClick = () => {
-        setPage(1); // Redirige vers la page 1 lorsque l'image du logo est cliquée
+        setPage(0); // Redirige vers la page 1 lorsque l'image du logo est cliquée
     }
+
+    useEffect(() => {
+        const fetchUserRole = async () => {
+            try {
+                const response = await axios.get('http://localhost:5000/GET/user-role', {
+                    params: {
+                        token: token
+                    }
+                });
+                const role = response.data.role;
+                if (role === 'admin') {
+                    setIsAdmin(true);
+                }
+            } catch (error) {
+                console.error('Error fetching user role:', error);
+            }
+        };
+
+        fetchUserRole();
+    }
+    , [token]);
 
     return (
         <header className="header">
@@ -41,6 +65,7 @@ const HeaderInterne: React.FC<HeaderInterneProps> = ({ setPage }) => {
                     <li><button onClick={() => setPage(7)}>evenement</button></li>
                     {/* <li><button onClick={() => setPage(1)}>Profile</button></li>
                     <li><button onClick={() => setPage(1)}>options</button></li> */}
+                    {isAdmin && <li><button onClick={() => setPage(9)}>administration</button></li>}
                     <li><button onClick={handleLogout}>déconnexion</button></li>
                 </ul>
             </nav>

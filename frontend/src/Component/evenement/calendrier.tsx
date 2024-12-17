@@ -19,8 +19,8 @@ interface Event {
     location: string;
     type: string;
     allDay: boolean;
+    id: number;
 }
-
 
 const messages = {
     allDay: "Toute la journée",
@@ -50,6 +50,9 @@ const EventAgenda = ({ event }: { event: Event }) => (
 const Calendrier: React.FC<CalendrierProps> = ({ setPage }) => {
     const token = localStorage.getItem('phototoken');
     const [events, setEvents] = React.useState<Event[]>([]);
+    const [isAdmin, setIsAdmin] = React.useState(false);
+    const [selectedEvent, setSelectedEvent] = React.useState<Event | null>(null);
+    const [popupPosition, setPopupPosition] = React.useState<{ x: number, y: number } | null>(null);
 
     useEffect(() => {
         const fetchEvents = async () => {
@@ -79,13 +82,86 @@ const Calendrier: React.FC<CalendrierProps> = ({ setPage }) => {
         location: event.lieu,
         type: event.type,
         allDay: false, // Force l'affichage dans les plages horaires
+        id: event.id_evenement,
     });
+
+    useEffect(() => {
+        const fetchUserRole = async () => {
+            try {
+                const response = await axios.get('http://localhost:5000/GET/user-role', {
+                    params: {
+                        token: token
+                    }
+                });
+                const role = response.data.role;
+                if (role === 'admin') {
+                    setIsAdmin(true);
+                }
+            } catch (error) {
+                console.error('Error fetching user role:', error);
+            }
+        };
+
+        fetchUserRole();
+    }
+    , [token]);
+
+    const handleSelectEvent = (event: Event, e: React.SyntheticEvent) => {
+        const target = e.target as HTMLElement;
+        const rect = target.getBoundingClientRect();
+        setPopupPosition({ x: rect.left, y: rect.top });
+        setSelectedEvent(event);
+    };
+
+    const handleClosePopup = () => {
+        setSelectedEvent(null);
+        setPopupPosition(null);
+    };
+
+    const handleRegister = () => {
+        axios.post('http://localhost:5000/POST/update-participation', {
+            token: token,
+            id_evenement: selectedEvent?.id,
+            presence: true,
+        })
+        .then((response) => {
+            if (response.data.message === 'User already participates in this event') {
+                alert('Vous êtes déjà inscrit à cet événement.');
+            } else {
+                handleClosePopup();
+            }
+        })
+        .catch((error) => {
+            if (error.response && error.response.status === 400 && error.response.data.message === 'User already participates in this event') {
+                alert('Vous êtes déjà inscrit à cet événement.');
+            } else {
+                console.error('Error registering for event:', error);
+            }
+        });
+    };
+
+    const EventPopup = ({ event }: { event: Event }) => (
+        <div className="popup" style={{ position: 'absolute', left: popupPosition?.x, top: ((popupPosition?.y ?? 0) + 25) }}>
+            <div className="popup-content">
+            <h2>{event.title}</h2>
+            <p><strong>Description:</strong> {event.description}</p>
+            <p><strong>Lieu:</strong> {event.location}</p>
+            <p><strong>Type:</strong> {event.type}</p>
+            <p><strong>Début:</strong> {moment(event.start).format('LLLL')}</p>
+            <p><strong>Fin:</strong> {moment(event.end).format('LLLL')}</p>
+            <button onClick={handleRegister}>S'inscrire</button>
+            <button onClick={handleClosePopup}>Fermer</button>
+            </div>
+        </div>
+    );
 
     return (
         <>
-            <div>
-                <button onClick={() => setPage(8)}>Ajouter un évènement</button>
-            </div>
+            {isAdmin && (
+                <div>
+                    <button onClick={() => setPage(8)}>Ajouter un évènement</button>
+                </div>
+            )}
             <div style={{ height: '100vh' }}>
                 <Calendar
                     localizer={localizer}
@@ -100,8 +176,10 @@ const Calendrier: React.FC<CalendrierProps> = ({ setPage }) => {
                             event: EventAgenda,
                         },
                     }}
+                    onSelectEvent={handleSelectEvent}
                 />
             </div>
+            {selectedEvent && popupPosition && <EventPopup event={selectedEvent} />}
         </>
     );
 };

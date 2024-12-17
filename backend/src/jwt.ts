@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import connexion from './db_connexion';
 
 const secretKey = '8.8cm_Flak_37_Selbstfahrlafette_auf_18_ton_Zugkraftwagen';
 
@@ -25,3 +26,15 @@ export const getUserIdFromToken = (token: any) => {
     return null;
   }
 };
+
+export const getRoleFromId = (id: number) => {
+  return new Promise<string>((resolve, reject) => {
+    connexion.query('SELECT role FROM Utilisateur WHERE id_utilisateur = ?', [id], (err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve((results as { role: string }[])[0].role);
+      }
+    });
+  });
+}

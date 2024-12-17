@@ -11,11 +11,12 @@ interface ConnexionProps {
 const Connexion: React.FC<ConnexionProps> = ({ setPage, setIsConnected, isConnected }) => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Connexion en cours...');
-  
+
     axios
       .get(
         `http://localhost:5000/GET/connexion?mail=${encodeURIComponent(
@@ -25,11 +26,11 @@ const Connexion: React.FC<ConnexionProps> = ({ setPage, setIsConnected, isConnec
       .then((response) => {
         console.log('Success:', response.data);
         const token = response.data;
-        
+
         if (token) {
           localStorage.setItem('phototoken', token);
           console.log('Token enregistré dans localStorage:', token);
-  
+
           // Vérification du token
           console.log('Vérification du token en cours...');
           return axios.get('http://localhost:5000/GET/verify-token', {
@@ -44,7 +45,7 @@ const Connexion: React.FC<ConnexionProps> = ({ setPage, setIsConnected, isConnec
       })
       .then((verifyResponse) => {
         console.log('Réponse de la vérification du token:', verifyResponse.data);
-  
+
         if (verifyResponse.data.message === 'Token is valid') {
           setIsConnected(true);
           console.log('Utilisateur connecté :', isConnected);
@@ -55,16 +56,23 @@ const Connexion: React.FC<ConnexionProps> = ({ setPage, setIsConnected, isConnec
         }
       })
       .catch((error) => {
-        if (error.response && error.response.status === 401) {
-          console.error('Mot de passe incorrect');
+        if (error.response) {
+          if (error.response.status === 401) {
+            console.error('Mot de passe incorrect');
+            setErrorMessage('Mot de passe incorrect');
+          } else if (error.response.status === 403 && error.response.data.message === 'User not validated') {
+            console.error('Votre compte n\'est pas encore validé');
+            setErrorMessage('Votre compte n\'est pas encore validé');
+          } else {
+            console.error('Erreur lors de la requête ou de la vérification du token:', error);
+            setErrorMessage('Erreur lors de la requête ou de la vérification du token');
+          }
         } else {
           console.error('Erreur lors de la requête ou de la vérification du token:', error);
+          setErrorMessage('Erreur lors de la requête ou de la vérification du token');
         }
       });
   };
-  
-  
-  
 
   return (
     <div className="connexion-container">
@@ -92,6 +100,7 @@ const Connexion: React.FC<ConnexionProps> = ({ setPage, setIsConnected, isConnec
             className="input-field"
           />
         </div>
+        {errorMessage && <p className="error-message" style={{ color: 'red' }}>{errorMessage}</p>}
         <button type="submit" className="connexion-button">Connexion</button>
       </form>
     </div>

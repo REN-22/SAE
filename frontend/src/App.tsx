@@ -11,6 +11,7 @@ import HeaderPublic from './Component/Header/headerpublic'
 import Calendrier from './Component/evenement/calendrier'
 import AjoutEvent from './Component/evenement/ajoutevent'
 import PagePrésentation from './Component/Pagedeprésentation/pagePrésentation'
+import PageAdmin from './Component/administration/pageAdmin'
 
 //CPT
 function App() {
@@ -91,6 +92,10 @@ function App() {
       {page === 8 && (
         <AjoutEvent
           setPage={setPage} />
+      )}
+      {page === 9 && (
+        <PageAdmin
+          />
       )}
     </div>
     </>

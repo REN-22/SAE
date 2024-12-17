@@ -2,7 +2,7 @@ import connexion from './db_connexion';
 import express, { Request, Response } from 'express';
 import mysql from 'mysql2/promise';
 import { hashPassword, comparePassword } from './hashage';
-import { generateToken, authenticateToken, getUserIdFromToken } from './jwt';
+import { generateToken, authenticateToken, getUserIdFromToken, getRoleFromId } from './jwt';
 const cors = require('cors');
 import multer from 'multer';
 import path from 'path';
@@ -286,7 +286,109 @@ app.post('/POST/create-comment', async (req, res) => {
     }
 });
 
+// participation à un évènement
+app.post('/POST/update-participation', async (req, res) => {
+    const { id_evenement, presence } = req.body;
+    const token = req.body.token;
+
+    const tokenVerification = authenticateToken(token);
+    if (!tokenVerification.valid) {
+        return res.status(401).json({ message: 'Invalid token' });
+    }
+
+    const userId = getUserIdFromToken(token);
+
+    try {
+        // Vérifier si l'utilisateur participe déjà à l'évènement
+        const [existingParticipation]: any = await connexion.promise().query(
+            `SELECT * FROM Participation WHERE id_utilisateur = ? AND id_evenement = ?`,
+            [userId, id_evenement]
+        );
+
+        if (existingParticipation.length > 0) {
+            return res.status(400).json({ message: 'User already participates in this event' });
+        }
+
+        await connexion.promise().execute(
+            `INSERT INTO Participation (id_utilisateur, id_evenement, presence) 
+             VALUES (?, ?, ?)
+             ON DUPLICATE KEY UPDATE presence = ?`,
+            [userId, id_evenement, presence, presence]
+        );
+
+        res.status(200).json({
+            message: 'Participation updated successfully',
+            participation: {
+                id_evenement,
+                id_utilisateur: userId,
+                presence
+            }
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
 /*------------------------------------------PUT---------------------------------------------- */
+
+// validation d'un utilisateur
+app.put('/PUT/validate-user', async (req, res) => {
+    const id = req.body.id;
+    const token = req.body.token;
+
+    const tokenVerification = authenticateToken(token);
+    if (!tokenVerification.valid) {
+        return res.status(401).json({ message: 'Invalid token' });
+    }
+
+    const role = getRoleFromId(tokenVerification.userId);
+    
+    if (await role !== 'admin') {
+        return res.status(403).json({ message: 'Unauthorized' });
+    }
+
+    try {
+        await connexion.promise().execute(
+            `UPDATE utilisateur SET statut = true WHERE id_utilisateur = ?`,
+            [id]
+        );
+
+        res.status(200).json({ message: 'User validated successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// validstion de la cotisation d'un utilisateur
+app.put('/PUT/validate-cotisation', async (req, res) => {
+    const id = req.body.id;
+    const token = req.body.token;
+
+    const tokenVerification = authenticateToken(token);
+    if (!tokenVerification.valid) {
+        return res.status(401).json({ message: 'Invalid token' });
+    }
+
+    const role = getRoleFromId(tokenVerification.userId);
+    
+    if (await role !== 'admin') {
+        return res.status(403).json({ message: 'Unauthorized' });
+    }
+
+    try {
+        await connexion.promise().execute(
+            `UPDATE utilisateur SET statut_cotisation = true WHERE id_utilisateur = ?`,
+            [id]
+        );
+
+        res.status(200).json({ message: 'User cotisation validated successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
 
 /*------------------------------------------GET---------------------------------------------- */
 
@@ -302,6 +404,11 @@ app.get('/GET/connexion', async (req, res) => {
         }
 
         const user = rows[0];
+
+        if (user.statut === 0) {
+            return res.status(403).json({ message: 'User not validated' });
+        }
+
         const isPasswordValid = comparePassword(mdp as string, user.mdp);
 
         if (!isPasswordValid) {
@@ -830,5 +937,80 @@ app.get('/GET/random-photos', async (req, res) => {
     }
 });
 
+// vérification role utilisateur
+app.get('/GET/user-role', async (req, res) => {
+    const token = req.query.token;
+
+    if (!token) {
+        return res.status(400).json({ message: 'Token is missing' });
+    }
+
+    const tokenVerification = authenticateToken(token);
+    
+    if (!tokenVerification?.valid) {
+        return res.status(401).json({ message: 'Invalid token' });
+    }
+
+    try {
+        const userid = getUserIdFromToken(token);
+        const role = await getRoleFromId(userid);
+        res.status(200).json({ role });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error'});
+    }
+})
+
+// récupération d'un utilisateur par son ID
+app.get('/GET/userid', async (req, res) => {
+    const id = req.query.id;
+    const token = req.query.token;
+
+    if (!token) {
+        return res.status(400).json({ message: 'Token is missing' });
+    }
+
+    const tokenVerification = authenticateToken(token);
+
+    if (!tokenVerification?.valid) {
+        return res.status(401).json({ message: 'Invalid token' });
+    }
+
+    try {
+        const [rows]: any = await connexion.promise().query('SELECT * FROM utilisateur WHERE id_utilisateur = ?', [id]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'User not found', id });
+        }
+
+        res.status(200).json(rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// récupération des id des utilisateur non validé et/ou non cotisé
+app.get('/GET/users-not-validated', async (req, res) => {
+    const token = req.query.token;
+
+    if (!token) {
+        return res.status(400).json({ message: 'Token is missing' });
+    }
+
+    const role = getRoleFromId(getUserIdFromToken(token));
+
+    if (await role !== 'admin') {
+        return res.status(403).json({ message: 'Unauthorized' });
+    }
+
+    try {
+        const [rows]: any = await connexion.promise().query('SELECT id_utilisateur FROM utilisateur WHERE statut = false OR statut_cotisation = false');
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
 
 /*-----------------------------------------DELETE---------------------------------------------- */

@@ -17,9 +17,15 @@ const Inscription: React.FC<InscriptionProps> = ({ setPage }) => {
   const [password, setPassword] = useState<string>('');
   const [phone, setPhone] = useState<string>('');
   const [emailNotification, setEmailNotification] = useState<boolean>(false);
+  const [confirmPassword, setConfirmPassword] = useState<string>('');
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
+    if (password !== confirmPassword) {
+      setErrorMessage('Les mots de passe ne correspondent pas.');
+      return;
+    }
     axios.post('http://localhost:5000/POST/create-user', {
       pseudo,
       nom: lastName,
@@ -34,7 +40,7 @@ const Inscription: React.FC<InscriptionProps> = ({ setPage }) => {
     })
       .then((response) => {
         console.log('Success:', response.data);
-        setPage(1); // Redirect to another page after successful registration
+        setPage(0); // Redirect to another page after successful registration
       })
       .catch((error) => {
         console.error('Error:', error);
@@ -122,6 +128,7 @@ const Inscription: React.FC<InscriptionProps> = ({ setPage }) => {
             className="input-field"
           />
         </div>
+        {errorMessage && <p className="error-message" style={{ color: 'red' }}>{errorMessage}</p>}
         <div className="input-container">
           <label htmlFor="password">Mot de passe</label>
           <input
@@ -129,6 +136,17 @@ const Inscription: React.FC<InscriptionProps> = ({ setPage }) => {
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
+            className="input-field"
+          />
+        </div>
+        <div className="input-container">
+          <label htmlFor="confirmPassword">Confirmez le mot de passe</label>
+          <input
+            type="password"
+            id="confirmPassword"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
             required
             className="input-field"
           />
@@ -153,8 +171,8 @@ const Inscription: React.FC<InscriptionProps> = ({ setPage }) => {
           <label htmlFor="emailNotification">Notification par e-mail</label>
         </div>
         <div className="CIbutton-container">
-          <button type="submit" className="validate-button" onClick={() => handleRegister}>Valider</button>
-          <button type="button" className="cancel-button" onClick={() => setPage(1)}>Annuler</button>
+          <button type="submit" className="validate-button">Valider</button>
+          <button type="button" className="cancel-button" onClick={() => setPage(0)}>Annuler</button>
         </div>
       </form>
     </div>
