@@ -4,9 +4,11 @@ import axios from 'axios';
 
 interface UploadphotoProps {
     setPage: any;
+    idvisionnage: number | null;
+    setIdvisionnage: any;
 }
 
-const Uploadphoto: React.FC<UploadphotoProps> = ({ setPage }) => {
+const Uploadphoto: React.FC<UploadphotoProps> = ({ setPage, idvisionnage, setIdvisionnage }) => {
     const [isPublic, setIsPublic] = useState<boolean>(false);
     const [nomphoto, setNomphoto] = useState<string>("");
     const [description, setDescription] = useState<string>("");
@@ -43,6 +45,7 @@ const Uploadphoto: React.FC<UploadphotoProps> = ({ setPage }) => {
             isPublic,
             photographe,
             tags: selectedTags.map(tag => tag.id_mot_cle), // On envoie les IDs des tags sélectionnés
+            idvisionnage,
         }));
 
         formData.append('token', token ?? '');
@@ -52,9 +55,15 @@ const Uploadphoto: React.FC<UploadphotoProps> = ({ setPage }) => {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             console.log("réponse", response.data);
-            setPage(1);
         } catch (error) {
             console.error('Error uploading photo:', error);
+        }
+
+        if (idvisionnage !== null) {
+            setIdvisionnage(null);
+            setPage(7);
+        } else {
+            setPage(1);
         }
     };
 

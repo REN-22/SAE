@@ -88,7 +88,7 @@ app.post('/POST/upload-photo', upload.fields([{ name: 'photo', maxCount: 1 }]), 
     }
 
     const info = JSON.parse(req.body.info);
-    const { nom, nomphoto, description, isPublic, photographe, tags } = info; // `tags` contient une liste d'IDs des mots-clés
+    const { nom, nomphoto, description, isPublic, photographe, tags, idvisionnage } = info; // `tags` contient une liste d'IDs des mots-clés
     const token = req.body.token;
 
     const tokenVerification = authenticateToken(token);
@@ -146,9 +146,9 @@ app.post('/POST/upload-photo', upload.fields([{ name: 'photo', maxCount: 1 }]), 
     try {
         // Étape 1 : Insérer la photo
         const [result] = await connexion.promise().execute(
-            `INSERT INTO Photo (nom, date_depot, exif, isPublic, id_utilisateur, id_utilisateur_1, légende) 
-                                    VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            [nom, date_depot, JSON.stringify(formattedData), isPublic, userId, photographe, description]
+            `INSERT INTO Photo (nom, date_depot, exif, isPublic, id_utilisateur, id_utilisateur_1, légende, id_visionnage) 
+                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            [nom, date_depot, JSON.stringify(formattedData), isPublic, userId, userId, description, idvisionnage]
         );
 
         const photoId = (result as unknown as mysql.ResultSetHeader).insertId;
@@ -207,13 +207,13 @@ app.post('/POST/upload-photo', upload.fields([{ name: 'photo', maxCount: 1 }]), 
         if (req.files['exif']?.[0]?.path) await fs.promises.unlink(req.files['exif'][0].path).catch(console.error);
 
         console.error(error);
-        res.status(500).json({ message: 'Internal Server Error' });
+        res.status(500).json({ message: `Internal Server Error ${error}` });
     }
 });
 
 // création d'un évènement
 app.post('/POST/create-event', async (req, res) => {
-    const { date_heure_debut, date_heure_fin, titre, descriptif, lieu, type} = req.body.data;
+    const { date_heure_debut, date_heure_fin, titre, descriptif, lieu, type } = req.body.data;
     const token = req.body.token;
 
     const tokenVerification = authenticateToken(token);
@@ -230,10 +230,21 @@ app.post('/POST/create-event', async (req, res) => {
             [date_heure_debut, date_heure_fin, titre, descriptif, lieu, type, userId]
         );
 
+        const eventId = (result as unknown as mysql.ResultSetHeader).insertId;
+
+        if (type === 'Visionnage') {
+            const date_visibilite = new Date();
+            const date_diffusion = new Date(date_heure_debut);
+            await connexion.promise().execute(
+            `INSERT INTO visionnage (id_evenement, date_visibilite, date_diffusion) VALUES (?, ?, ?)`,
+            [eventId, date_visibilite, date_diffusion]
+            );
+        }
+
         res.status(201).json({
             message: 'Event created successfully',
             event: {
-                id_evenement: (result as unknown as mysql.ResultSetHeader).insertId,
+                id_evenement: eventId,
                 date_heure_debut,
                 date_heure_fin,
                 titre,
@@ -658,6 +669,45 @@ app.get('/GET/photo/filemin', async (req, res) => {
     }
 });
 
+// récupération d'une photo
+app.get('/GET/photo/file', async (req, res) => {
+    const { id, token } = req.query;
+
+    if (!token) {
+        return res.status(400).json({ message: 'Token is missing' });
+    }
+
+    const tokenVerification = authenticateToken(token as string);
+    if (!tokenVerification.valid) {
+        return res.status(401).json({ message: 'Invalid token' });
+    }
+
+    try {
+        const [rows]: any = await connexion.promise().query(
+            `SELECT * FROM photo WHERE id_photo = ?`, 
+            [id]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: `Photo not found ${id}` });
+        }
+
+        const photoDirectory = path.join(__dirname, 'photo');
+        const photoFiles = await fs.promises.readdir(photoDirectory);
+        const photoFile = photoFiles.find(file => path.parse(file).name === id);
+
+        if (!photoFile) {
+            return res.status(404).json({ message: 'Photo file not found' });
+        }
+
+        const photoPath = path.join(photoDirectory, photoFile);
+        res.sendFile(photoPath);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
 // récupération des évènements
 app.get('/GET/events', async (req, res) => {
     const token = req.query.token;
@@ -1007,6 +1057,116 @@ app.get('/GET/users-not-validated', async (req, res) => {
     try {
         const [rows]: any = await connexion.promise().query('SELECT id_utilisateur FROM utilisateur WHERE statut = false OR statut_cotisation = false');
         res.status(200).json(rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// récupération nombre de commantaire photo
+app.get('/GET/commentaires-count', async (req, res) => {
+    const id = req.query.id_photo;
+
+    try {
+        const [rows]: any = await connexion.promise().query(
+            `SELECT COUNT(*) AS count FROM commentaire_p WHERE id_photo = ?`,
+            [id]
+        );
+
+        res.status(200).json(rows[0].count);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// vérification participation a un event
+app.get('/GET/is-participating', async (req, res) => {
+    const { id_evenement, token } = req.query;
+
+    if (!token) {
+        return res.status(400).json({ message: 'Token is missing' });
+    }
+
+    const userId = getUserIdFromToken(token);
+
+    try {
+        const [rows]: any = await connexion.promise().query(
+            `SELECT presence FROM Participation WHERE id_utilisateur = ? AND id_evenement = ?`,
+            [userId, id_evenement]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Participation not found', userId, id_evenement });
+        }
+
+        res.status(200).json({ presence: rows[0].presence });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+//récupération de toute les info d'un utilisateur
+app.get('/GET/user', async (req, res) => {
+    const token = req.query.token;
+
+    if (!token) {
+        return res.status(400).json({ message: 'Token is missing' });
+    }
+
+    const userId = getUserIdFromToken(token);
+
+    try {
+        const [rows]: any = await connexion.promise().query('SELECT pseudo, nom, prenom, adresse, cp, ville, telephone, mail, notif_mail FROM utilisateur WHERE id_utilisateur = ?', [userId]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: `User ${userId} not found` });
+        }
+
+        res.status(200).json(rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// récupération des photos liées a un visionnage dans un ordre aléatoire
+app.get('/GET/visionnage-photos', async (req, res) => {
+    const { id, token } = req.query;
+
+    if (!token) {
+        return res.status(400).json({ message: 'Token is missing' });
+    }
+
+    try {
+        const [rows]: any = await connexion.promise().query(
+            `SELECT id_photo FROM photo WHERE id_visionnage = ? ORDER BY RAND()`,
+            [id]
+        );
+
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// récupération idvisionnage avec id evenement
+app.get('/GET/visionnage', async (req, res) => {
+    const id = req.query.id_evenement;
+
+    try {
+        const [rows]: any = await connexion.promise().query(
+            `SELECT id_visionnage FROM visionnage WHERE id_evenement = ?`,
+            [id]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Visionnage not found' });
+        }
+
+        res.status(200).json(rows[0].id_visionnage);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal Server Error' });

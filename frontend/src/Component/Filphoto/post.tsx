@@ -23,6 +23,7 @@ const Post: React.FC<PostProps> = ({ idPhoto, toggleAffcom }) => {
     const [photoUrl, setPhotoUrl] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const [nbcoms, setNbcoms] = useState<number>(0);
 
     useEffect(() => {
         const fetchMetadataAndPhoto = async () => {
@@ -106,6 +107,25 @@ const Post: React.FC<PostProps> = ({ idPhoto, toggleAffcom }) => {
             } finally {
                 setLoading(false);
             }
+
+            // Récupérer le nombre de commentaires
+            try {
+                const commentsResponse = await axios.get(
+                    "http://localhost:5000/GET/commentaires-count",
+                    {
+                        params: { id_photo: idPhoto },
+                    }
+                );
+
+                if (commentsResponse.status === 200) {
+                    setNbcoms(commentsResponse.data);
+                } else {
+                    throw new Error("Failed to fetch comments count.");
+                }
+            } catch (commentsError) {
+                console.error(commentsError);
+                setError("Failed to fetch comments count.");
+            }
         };
 
         fetchMetadataAndPhoto();
@@ -157,7 +177,7 @@ const Post: React.FC<PostProps> = ({ idPhoto, toggleAffcom }) => {
                 <strong>Description:</strong> {metadata.description ?? "Aucune description disponible."}
             </p>
             <button className="bouttoncoms" onClick={() => toggleAffcom(idPhoto)}>
-                  Commenter <span>0</span>
+                  Commentaire <span>{nbcoms}</span>
             </button>
         </div>
     );

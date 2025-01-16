@@ -12,11 +12,13 @@ import Calendrier from './Component/evenement/calendrier'
 import AjoutEvent from './Component/evenement/ajoutevent'
 import PagePrésentation from './Component/Pagedeprésentation/pagePrésentation'
 import PageAdmin from './Component/administration/pageAdmin'
+import Visionnage from './Component/visionnage/visionnage'
 
 //CPT
 function App() {
   const [page, setPage] = useState(0);
   const [isConnected, setIsConnected] = useState(false);
+  const [idvisionnage, setIdvisionnage] = useState<number | null>(null);
 
   useEffect(() => {
     console.log('useEffect');
@@ -49,16 +51,18 @@ function App() {
 
   return (
     <>
-    <div>
-    {isConnected === true && (
-      <HeaderInterne 
-      setPage={setPage}/>
+    {page !== 10 && (
+      <div>
+      {isConnected === true && (
+        <HeaderInterne 
+        setPage={setPage}/>
+      )}
+      {isConnected === false && (
+        <HeaderPublic 
+        setPage={setPage}/>
+      )}
+      </div>
     )}
-    {isConnected === false && (
-      <HeaderPublic 
-      setPage={setPage}/>
-    )}
-    </div>
     <div className='page-content'>
       {page === 0 && (
         <PagePrésentation />
@@ -77,7 +81,9 @@ function App() {
       )}
       {page === 4 && (
         <Uploadphoto 
-          setPage={setPage} />
+          setPage={setPage} 
+          idvisionnage={idvisionnage} 
+          setIdvisionnage={setIdvisionnage}/>
       )}
       {page === 5 && (
         <Connexion
@@ -87,7 +93,8 @@ function App() {
       )}
       {page === 7 && (
         <Calendrier
-          setPage={setPage} />
+          setPage={setPage} 
+          setIdvisionnage={setIdvisionnage} />
       )}
       {page === 8 && (
         <AjoutEvent
@@ -96,6 +103,12 @@ function App() {
       {page === 9 && (
         <PageAdmin
           />
+      )}
+      {page === 10 && (
+        <Visionnage
+          setPage={setPage}
+          idvisionnage={1} 
+          setIdvisionnage={setIdvisionnage}/>
       )}
     </div>
     </>

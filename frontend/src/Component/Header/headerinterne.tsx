@@ -63,8 +63,8 @@ const HeaderInterne: React.FC<HeaderInterneProps> = ({ setPage }) => {
                 <ul>
                     <li><button onClick={() => setPage(1)}>Fil</button></li>
                     <li><button onClick={() => setPage(7)}>evenement</button></li>
-                    {/* <li><button onClick={() => setPage(1)}>Profile</button></li>
-                    <li><button onClick={() => setPage(1)}>options</button></li> */}
+                    <li><button onClick={() => setPage(2)}>Profile</button></li>
+                    {/*<li><button onClick={() => setPage(1)}>options</button></li> */}
                     {isAdmin && <li><button onClick={() => setPage(9)}>administration</button></li>}
                     <li><button onClick={handleLogout}>déconnexion</button></li>
                 </ul>

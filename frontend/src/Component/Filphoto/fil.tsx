@@ -59,9 +59,11 @@ const Fil: React.FC<FilProps> = ({ setPage }) => {
 
   return (
     <div className="superpostcom">
-      <button onClick={() => setPage(4)}>nouveau post</button>
+      
       <div className="postcom">
+      <button onClick={() => setPage(4)}>nouveau post</button>
         <div className="superpost">
+        <div className="postlist">
           {posts.map((post) => (
             <div className="post" key={post.id_photo}>
               <Post idPhoto={post.id_photo} toggleAffcom={toggleAffcom} />
@@ -69,6 +71,7 @@ const Fil: React.FC<FilProps> = ({ setPage }) => {
               </div>
             </div>
           ))}
+          </div>
         </div>
         {affcom && (
           <div className="commentairelist">

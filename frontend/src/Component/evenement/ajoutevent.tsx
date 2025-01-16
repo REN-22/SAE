@@ -44,11 +44,11 @@ const AjoutEvent: React.FC<AjoutEventProps> = ({ setPage }) => {
         <form onSubmit={handleSubmit}>
             <div>
                 <label htmlFor="date_heure_debut">Date et Heure de Début:</label>
-                <input id="date_heure_debut" type="datetime-local" name="date_heure_debut" value={event.date_heure_debut} onChange={handleChange} required />
+                <input id="date_heure_debut" type="datetime-local" name="date_heure_debut" value={event.date_heure_debut} onChange={handleChange} required min={new Date().toISOString().slice(0, 16)} />
             </div>
             <div>
                 <label htmlFor="date_heure_fin">Date et Heure de Fin:</label>
-                <input id="date_heure_fin" type="datetime-local" name="date_heure_fin" value={event.date_heure_fin} onChange={handleChange} required />
+                <input id="date_heure_fin" type="datetime-local" name="date_heure_fin" value={event.date_heure_fin} onChange={handleChange} required min={event.date_heure_debut} />
             </div>
             <div>
                 <label htmlFor="titre">Titre:</label>

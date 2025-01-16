@@ -96,6 +96,12 @@ h1 {
   z-index: 2;
 }
 
+.calendrier {
+  height: 80vh; /* Utilise 100% de la hauteur de la vue */
+  display: flex;
+  flex-direction: column;
+}
+
 /* supplantation du css du module React-big-calendar */
 .rbc-today {
   background-color: #423e39;
@@ -111,8 +117,48 @@ h1 {
   z-index: 1;
 }
 
-.rbc-event, .rbc-day-slot .rbc-background-event {
-  background-color: #ff9000;
+/* test */
+/* Styles pour les événements passés */
+.rbc-event.event-not-participating,
+.rbc-day-slot .rbc-event.event-not-participating {
+    background-color: #ff9000 !important;
+    color: #000000 !important;
+    position: relative;
+    z-index: 1;
+}
+
+/* Styles pour les événements actifs */
+.rbc-event.event-participating,
+.rbc-day-slot .rbc-event.event-participating {
+    background-color: #ff4000 !important;
+    color: #000000 !important;
+    position: relative;
+    z-index: 1;
+}
+
+.rbc-event.rbc-selected.event-participating, .rbc-day-slot.event-participating .rbc-selected.rbc-background-event.event-participating {
+  background-color: #cc7a00;
+  color: #000000;
+  position: relative;
+  z-index: 1;
+}
+
+.rbc-event.rbc-selected.event-not-participating, .rbc-day-slot.event-not-participating .rbc-selected.rbc-background-event.event-not-participating {
+  background-color: #cc7a00;
+  color: #000000;
+  position: relative;
+  z-index: 1;
+}
+
+.rbc-event.rbc-selected, .rbc-day-slot .rbc-selected.rbc-background-event {
+  background-color: #000000;
+  color: #000000;
+  position: relative;
+  z-index: 1;
+}
+
+.rbc-event {
+  background-color: #000000;
   color: #000000;
   position: relative;
   z-index: 1;
@@ -142,13 +188,6 @@ h1 {
 .rbc-toolbar button {
   color: #ffffff;
   background-color: #000000;
-  position: relative;
-  z-index: 1;
-}
-
-.rbc-event.rbc-selected, .rbc-day-slot .rbc-selected.rbc-background-event {
-  background-color: #cc7a00;
-  color: #000000;
   position: relative;
   z-index: 1;
 }

@@ -1,124 +1,59 @@
-import React, { useState , useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import "./profil.css";
 import axios from 'axios';
 
 interface UserProfileProps {
-  setPage: any;
+  setPage: React.Dispatch<React.SetStateAction<number>>;
 }
 
-const Profil: React.FC<UserProfileProps> = ({ setPage }) => {
-  const [isNomPublic, setIsNomPublic] = useState<boolean>(false);
-  const [isPrenomPublic, setIsPrenomPublic] = useState<boolean>(false);
-  const [isEmailPublic, setIsEmailPublic] = useState<boolean>(false);
-  const [isTelephonePublic, setIsTelephonePublic] = useState<boolean>(false);
+const UserProfile: React.FC<UserProfileProps> = ({ setPage }) => {
+  const [userInfo, setUserInfo] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+  const token = localStorage.getItem('phototoken');
 
-  //const nom = "Harry ";
-  //const prenom = "Potter ";
-  //const email = "harry.potter@gmail.com ";
-  //const telephone = "+33 6 06 06 06 06 ";
-
-  const [prenom] = useState<string>("");
-  const [nom] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
-  const [telephone] = useState<string>("");
-  const [error, setError] = useState<string>("");
-
-   // Appel API pour récupérer les informations utilisateur
-   useEffect(() => {
-    const fetchUserData = async () => {
-      const token = localStorage.getItem("phototoken");
-
-      if (!token) {
-        setError("Token manquant");
-        return;
-      }
-
+  useEffect(() => {
+    const fetchUserInfo = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/GET/utilisateur", {
-          params: { token: token },
+        const response = await axios.get('http://localhost:5000/GET/user', {
+          params: { token }
         });
-
-        // Mise à jour des états avec les données de l'API
-        setLastName(response.data.nom);
-        setFirstName(response.data.prenom);
-        setEmail(response.data.email);
-        setPhone(response.data.telephone);
-      } catch (error: any) {
-        if (error.response) {
-          // Erreur provenant du serveur
-          setError(error.response.data.message || "Erreur du serveur");
-        } else {
-          // Erreur côté client (réseau, etc.)
-          setError("Une erreur est survenue");
-        }
-        console.error(error);
+        setUserInfo(response.data);
+        console.log(response.data);
+      } catch (err) {
+        setError(`Échec de la récupération des informations utilisateur : ${(err as any).response.data.message}`);
+        console.error(err);
       }
     };
 
-    fetchUserData();
-  }, []); // Le tableau vide [] signifie que l'effet se déclenche uniquement au montage du composant.
+    fetchUserInfo();
+  }, []);
+
+  if (error) {
+    return <div>Erreur : {error}</div>;
+  }
+
+  if (!userInfo) {
+    return <div>Chargement...</div>;
+  }
 
   return (
-    <div className="user-profile">
-      <h1>Profil Utilisateur</h1>
+    <div>
+      <h1>Page de Profil</h1>
+      <p>Bienvenue sur votre page de profil !</p>
       <div>
-        <p>
-          Nom: {nom}
-          <button
-            className={isNomPublic ? "button-public" : "button-private"}
-            onClick={() => setIsNomPublic(!isNomPublic)}
-          >
-            {isNomPublic ? "Public" : "Privé"}
-          </button>
-        </p>
-        <p>
-          Prénom: {prenom}
-          <button
-            className={isPrenomPublic ? "button-public" : "button-private"}
-            onClick={() => setIsPrenomPublic(!isPrenomPublic)}
-          >
-            {isPrenomPublic ? "Public" : "Privé"}
-          </button>
-        </p>
-        <p>
-          Email: {email}
-          <button
-            className={isEmailPublic ? "button-public" : "button-private"}
-            onClick={() => setIsEmailPublic(!isEmailPublic)}
-          >
-            {isEmailPublic ? "Public" : "Privé"}
-          </button>
-        </p>
-        <p>
-          Téléphone: {telephone}
-          <button
-            className={isTelephonePublic ? "button-public" : "button-private"}
-            onClick={() => setIsTelephonePublic(!isTelephonePublic)}
-          >
-            {isTelephonePublic ? "Public" : "Privé"}
-          </button>
-        </p>
-      </div>
-      <div className="button-container">
-        <button className="modifier-button">Modifier</button>
-        <button className="photo-feed-button" onClick={() => setPage(1)}>
-          Fil de photo
-        </button>
+        <h2>Informations Utilisateur</h2>
+        <p>Pseudo : {userInfo.pseudo}</p>
+        <p>Nom : {userInfo.nom}</p>
+        <p>Prénom : {userInfo.prenom}</p>
+        <p>Adresse : {userInfo.adresse}</p>
+        <p>Code Postal : {userInfo.cp}</p>
+        <p>Ville : {userInfo.ville}</p>
+        <p>Téléphone : {userInfo.telephone}</p>
+        <p>Email : {userInfo.mail}</p>
+        <p>Notifications par Email : {userInfo.notif_mail ? 'Activées' : 'Désactivées'}</p>
       </div>
     </div>
   );
 };
 
-export default Profil;
-function setLastName(nom: any) {
-  throw new Error("Function not implemented.");
-}
-
-function setFirstName(prenom: any) {
-  throw new Error("Function not implemented.");
-}
-
-function setPhone(telephone: any) {
-  throw new Error("Function not implemented.");
-}
-
+export default UserProfile;

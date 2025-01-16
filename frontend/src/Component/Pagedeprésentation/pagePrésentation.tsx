@@ -37,7 +37,7 @@ const PagePrésentation: React.FC = () => {
 
     return (
         <div className="presentation-container">
-            <h1>Bienvenue à Notre Association</h1>
+            <h1>Bienvenue dans Notre Association</h1>
             <p>
                 Notre association est dédiée à [insérer mission ou objectif de l'association]. 
                 Nous nous efforçons de [insérer activités ou services offerts par l'association].

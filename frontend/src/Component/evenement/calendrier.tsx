@@ -9,6 +9,7 @@ const localizer = momentLocalizer(moment);
 
 interface CalendrierProps {
     setPage: any;
+    setIdvisionnage : any;
 }
 
 interface Event {
@@ -47,20 +48,20 @@ const EventAgenda = ({ event }: { event: Event }) => (
     </span>
 );
 
-const Calendrier: React.FC<CalendrierProps> = ({ setPage }) => {
+const Calendrier: React.FC<CalendrierProps> = ({ setPage, setIdvisionnage }) => {
     const token = localStorage.getItem('phototoken');
     const [events, setEvents] = React.useState<Event[]>([]);
     const [isAdmin, setIsAdmin] = React.useState(false);
     const [selectedEvent, setSelectedEvent] = React.useState<Event | null>(null);
     const [popupPosition, setPopupPosition] = React.useState<{ x: number, y: number } | null>(null);
+    const [isParticipating, setIsParticipating] = React.useState(false);
+    
 
     useEffect(() => {
         const fetchEvents = async () => {
             try {
                 const response = await axios.get('http://localhost:5000/GET/events', {
-                    params: {
-                        token: token
-                    }
+                    params: { token }
                 });
                 const data = response.data;
                 const transformedEvents = data.map(transformEvent);
@@ -69,19 +70,19 @@ const Calendrier: React.FC<CalendrierProps> = ({ setPage }) => {
             } catch (error) {
                 console.error('Error fetching events:', error);
             }
-        };  
+        };
 
         fetchEvents();
     }, [token]);
-    
+
     const transformEvent = (event: any): Event => ({
         title: event.titre,
-        start: moment.tz(event.date_heure_debut, "Europe/Paris").toDate(), // Conversion explicite
-        end: moment.tz(event.date_heure_fin, "Europe/Paris").toDate(),    // Conversion explicite
+        start: moment.tz(event.date_heure_debut, "Europe/Paris").toDate(),
+        end: moment.tz(event.date_heure_fin, "Europe/Paris").toDate(),
         description: event.descriptif,
         location: event.lieu,
         type: event.type,
-        allDay: false, // Force l'affichage dans les plages horaires
+        allDay: false,
         id: event.id_evenement,
     });
 
@@ -89,27 +90,25 @@ const Calendrier: React.FC<CalendrierProps> = ({ setPage }) => {
         const fetchUserRole = async () => {
             try {
                 const response = await axios.get('http://localhost:5000/GET/user-role', {
-                    params: {
-                        token: token
-                    }
+                    params: { token }
                 });
                 const role = response.data.role;
-                if (role === 'admin') {
-                    setIsAdmin(true);
-                }
+                setIsAdmin(role === 'admin');
             } catch (error) {
                 console.error('Error fetching user role:', error);
             }
         };
 
         fetchUserRole();
-    }
-    , [token]);
+    }, [token]);
 
     const handleSelectEvent = (event: Event, e: React.SyntheticEvent) => {
         const target = e.target as HTMLElement;
         const rect = target.getBoundingClientRect();
-        setPopupPosition({ x: rect.left, y: rect.top });
+        setPopupPosition({
+            x: rect.left + window.scrollX,
+            y: rect.top + window.scrollY,
+        });
         setSelectedEvent(event);
     };
 
@@ -140,20 +139,103 @@ const Calendrier: React.FC<CalendrierProps> = ({ setPage }) => {
         });
     };
 
-    const EventPopup = ({ event }: { event: Event }) => (
-        <div className="popup" style={{ position: 'absolute', left: popupPosition?.x, top: ((popupPosition?.y ?? 0) + 25) }}>
-            <div className="popup-content">
-            <h2>{event.title}</h2>
-            <p><strong>Description:</strong> {event.description}</p>
-            <p><strong>Lieu:</strong> {event.location}</p>
-            <p><strong>Type:</strong> {event.type}</p>
-            <p><strong>Début:</strong> {moment(event.start).format('LLLL')}</p>
-            <p><strong>Fin:</strong> {moment(event.end).format('LLLL')}</p>
-            <button onClick={handleRegister}>S'inscrire</button>
-            <button onClick={handleClosePopup}>Fermer</button>
+    const checkParticipation = async (eventid: number) => {
+        console.log('Checking participation for event', eventid);
+        try {
+            const response = await axios.get('http://localhost:5000/GET/is-participating', {
+                params: { id_evenement: eventid, token }
+            });
+            return response.data.presence;
+        } catch (error) {
+            console.error('Error checking participation:', error);
+            return false;
+        }
+    };
+
+    const EventComponent = ({ event }: { event: Event }) => {
+        useEffect(() => {
+            const fetchParticipation = async () => {
+                const participating = await checkParticipation(event.id);
+                setIsParticipating(participating);
+                console.log('Participation:', participating);
+            };
+            fetchParticipation();
+        }, [event.id]);
+
+        const eventClass = isParticipating ? "event-participating" : "event-not-participating";
+        return (
+            <div className={`rbc-event ${eventClass}`}>
+                {event.title}
             </div>
-        </div>
-    );
+        );
+    };
+
+    const EventPopup = ({ event }: { event: Event }) => {
+        if (!popupPosition) return null;
+
+        const popupWidth = 300;
+        const popupHeight = 200;
+
+        const adjustedX = Math.min(popupPosition.x, window.innerWidth - popupWidth);
+        const adjustedY = Math.min(popupPosition.y, window.innerHeight - popupHeight);
+
+        return (
+            <div
+                className="popup"
+                style={{
+                    left: adjustedX,
+                    top: adjustedY,
+                    position: "absolute",
+                }}
+            >
+                <div className="popup-content">
+                    <h2>{event.title}</h2>
+                    <p><strong>Description:</strong> {event.description}</p>
+                    <p><strong>Lieu:</strong> {event.location}</p>
+                    <p><strong>Type:</strong> {event.type}</p>
+                    <p><strong>Début:</strong> {moment(event.start).format('LLLL')}</p>
+                    <p><strong>Fin:</strong> {moment(event.end).format('LLLL')}</p>
+                    {moment(event.end).isAfter(moment()) && (
+                        <button onClick={handleRegister}>S'inscrire</button>
+                    )}
+                    <button onClick={() => handleajoutphotovisio(event.id)} >ajouter photo</button>
+                    {isAdmin && <button onClick={() => handlevisio(event.id)}>visionnage</button>}
+                    <button onClick={handleClosePopup}>Fermer</button>
+                </div>
+            </div>
+        );
+    };
+
+    const handleajoutphotovisio = async (idevent: number) => {
+        console.log('handleajoutphotovisio');
+        await axios.get('http://localhost:5000/GET/visionnage', {
+            params: { id_evenement: idevent }
+        })
+        .then((response) => {
+            const idvisionnage = response.data;
+            setIdvisionnage(idvisionnage);
+            setPage(4);
+        })
+        .catch((error) => {
+            console.error('Error fetching visionnage id:', error);
+        });
+    }
+
+    const handlevisio = async (idevent: number) => {
+        console.log('handlevisio');
+        await axios.get('http://localhost:5000/GET/visionnage', {
+            params: { id_evenement: idevent }
+        })
+        .then((response) => {
+            const idvisionnage = response.data;
+            setIdvisionnage(idvisionnage);
+            setPage(10);
+        })
+        .catch((error) => {
+            console.error('Error fetching visionnage id:', error);
+        });
+    }
+
 
     return (
         <>
@@ -162,19 +244,20 @@ const Calendrier: React.FC<CalendrierProps> = ({ setPage }) => {
                     <button onClick={() => setPage(8)}>Ajouter un évènement</button>
                 </div>
             )}
-            <div style={{ height: '100vh' }}>
+            <div className="calendrier">
                 <Calendar
                     localizer={localizer}
                     events={events}
                     messages={messages}
                     startAccessor="start"
                     endAccessor="end"
-                    allDayAccessor={(event) => event.allDay || false} // Force à `false` si pas défini
-                    style={{ height: 500 }}
+                    allDayAccessor={(event) => event.allDay || false}
+                    style={{ height: '100%' }}
                     components={{
                         agenda: {
                             event: EventAgenda,
                         },
+                        event: EventComponent,
                     }}
                     onSelectEvent={handleSelectEvent}
                 />
