@@ -1,14 +1,15 @@
 import connexion from './db_connexion';
 import express, { Request, Response } from 'express';
-import mysql from 'mysql2/promise';
+import mysql, { ResultSetHeader } from 'mysql2/promise';
 import { hashPassword, comparePassword } from './hashage';
 import { generateToken, authenticateToken, getUserIdFromToken, getRoleFromId } from './jwt';
-import cors from 'cors';
+const cors = require('cors');
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import sharp from 'sharp';
-import {ExifParserFactory} from 'ts-exif-parser';
+import { console } from 'inspector';
+import {ExifParserFactory} from "ts-exif-parser";
 
 const app = express();
 const PORT = 5000;
@@ -33,11 +34,12 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 
+
 /*------------------------------------------POST---------------------------------------------- */
 
 // Création d'un utilisateur
-app.post('/POST/create-user', async (req, res) => {
-    const { pseudo, nom, prenom, adresse, cp, ville, telephone, mail, mdp, notif_mail} = req.body;
+app.post('/POST/create-user', async (req: Request, res: Response): Promise<void> => {
+    const { pseudo, nom, prenom, adresse, cp, ville, telephone, mail, mdp, notif_mail } = req.body;
 
     /* vérification des champs */
     const hashedMdp = hashPassword(mdp);
@@ -47,17 +49,16 @@ app.post('/POST/create-user', async (req, res) => {
     const statut_cotisation = false;
 
     try {
-        const result = connexion.execute(
+        const result = await connexion.execute(
             `INSERT INTO utilisateur (pseudo, nom, prenom, adresse, cp, ville, telephone, mail, mdp, role, statut, notif_mail, statut_cotisation) 
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [pseudo, nom, prenom, adresse, cp, ville, telephone, mail, hashedMdp, role, statut, notif_mail, statut_cotisation]
         );
 
         res.status(201).json({
             message: 'User created successfully',
             user: {
-                id_utilisateur: (result as unknown as mysql.ResultSetHeader).insertId,
+                id_utilisateur: (result as unknown as ResultSetHeader).insertId,
                 pseudo,
                 nom,
                 prenom,
@@ -80,9 +81,10 @@ app.post('/POST/create-user', async (req, res) => {
 });
 
 // Upload d'une photo avec fichiers et création d'une version de moindre qualité
-app.post('/POST/upload-photo', upload.fields([{ name: 'photo', maxCount: 1 }]), async (req, res) => {
+app.post('/POST/upload-photo', upload.fields([{ name: 'photo', maxCount: 1 }]), async (req: Request, res: Response): Promise<void> => {
     if (!req.files || !('photo' in req.files)) {
-        return res.status(400).json({ message: 'No photo file uploaded' });
+        res.status(400).json({ message: 'No photo file uploaded' });
+        return;
     }
 
     const info = JSON.parse(req.body.info);
@@ -91,7 +93,8 @@ app.post('/POST/upload-photo', upload.fields([{ name: 'photo', maxCount: 1 }]), 
 
     const tokenVerification = authenticateToken(token);
     if (!tokenVerification.valid) {
-        return res.status(401).json({ message: 'Invalid token' });
+        res.status(401).json({ message: 'Invalid token' });
+        return;
     }
 
     const date_depot = new Date();
@@ -165,7 +168,7 @@ app.post('/POST/upload-photo', upload.fields([{ name: 'photo', maxCount: 1 }]), 
 
         // Vérification de l'existence des fichiers
         if (!fs.existsSync(photoFile.path)) {
-            return res.status(500).json({ message: 'Temporary file not found' });
+            res.status(500).json({ message: 'Temporary file not found' });
         }
 
         const photoFilePath = path.join(__dirname, 'photo', `${photoId}.jpg`);
@@ -209,13 +212,14 @@ app.post('/POST/upload-photo', upload.fields([{ name: 'photo', maxCount: 1 }]), 
 });
 
 // création d'un évènement
-app.post('/POST/create-event', async (req, res) => {
+app.post('/POST/create-event', async (req: Request, res: Response): Promise<void> => {
     const { date_heure_debut, date_heure_fin, titre, descriptif, lieu, type } = req.body.data;
     const token = req.body.token;
 
     const tokenVerification = authenticateToken(token);
-    if (!tokenVerification.valid) {
-        return res.status(401).json({ message: 'Invalid token' });
+    if (!tokenVerification.valid) {  
+        res.status(401).json({ message: 'Invalid token' });
+        return;
     }
 
     const userId = getUserIdFromToken(token);
@@ -258,14 +262,15 @@ app.post('/POST/create-event', async (req, res) => {
 });
 
 // création d'un commentaire
-app.post('/POST/create-comment', async (req, res) => {
+app.post('/POST/create-comment', async (req: Request, res: Response): Promise<void> => {
     const id_photo = req.body.id_photo;
     const texte = req.body.texte;
     const token = req.body.token;
 
     const tokenVerification = authenticateToken(token);
     if (!tokenVerification.valid) {
-        return res.status(401).json({ message: 'Invalid token' });
+        res.status(401).json({ message: 'Invalid token' });
+        return;
     }
 
     const userId = getUserIdFromToken(token);
@@ -295,13 +300,14 @@ app.post('/POST/create-comment', async (req, res) => {
 });
 
 // participation à un évènement
-app.post('/POST/update-participation', async (req, res) => {
+app.post('/POST/update-participation', async (req: Request, res: Response): Promise<void> => {
     const { id_evenement, presence } = req.body;
     const token = req.body.token;
 
     const tokenVerification = authenticateToken(token);
     if (!tokenVerification.valid) {
-        return res.status(401).json({ message: 'Invalid token' });
+        res.status(401).json({ message: 'Invalid token' });
+        return;
     }
 
     const userId = getUserIdFromToken(token);
@@ -314,7 +320,8 @@ app.post('/POST/update-participation', async (req, res) => {
         );
 
         if (existingParticipation.length > 0) {
-            return res.status(400).json({ message: 'User already participates in this event' });
+            res.status(400).json({ message: 'User already participates in this event' });
+            return;
         }
 
         await connexion.promise().execute(
@@ -339,9 +346,10 @@ app.post('/POST/update-participation', async (req, res) => {
 });
 
 // upload données bd d'un document et son fichier
-app.post('/POST/upload-document', upload.single('file'), async (req, res) => {
+app.post('/POST/upload-document', upload.single('file'), async (req: Request, res: Response): Promise<void> => {
     if (!req.file) {
-        return res.status(400).json({ message: 'No file uploaded' });
+        res.status(400).json({ message: 'No file uploaded' });
+        return;
     }
 
     const { nom, description } = req.body;
@@ -351,7 +359,8 @@ app.post('/POST/upload-document', upload.single('file'), async (req, res) => {
 
     const tokenVerification = authenticateToken(token);
     if (!tokenVerification.valid) {
-        return res.status(401).json({ message: 'Invalid token' });
+        res.status(401).json({ message: 'Invalid token' });
+        return;
     }
 
     const userId = getUserIdFromToken(token);
@@ -372,7 +381,8 @@ app.post('/POST/upload-document', upload.single('file'), async (req, res) => {
 
         // Vérification de l'existence des fichiers
         if (!fs.existsSync(documentFile.path)) {
-            return res.status(500).json({ message: 'Temporary file not found' });
+            res.status(500).json({ message: 'Temporary file not found' });
+            return;
         }
 
         const documentFilePath = path.join(__dirname, 'document', `${documentId}.pdf`);
@@ -404,19 +414,21 @@ app.post('/POST/upload-document', upload.single('file'), async (req, res) => {
 /*------------------------------------------PUT---------------------------------------------- */
 
 // validation d'un utilisateur
-app.put('/PUT/validate-user', async (req, res) => {
+app.put('/PUT/validate-user', async (req: Request, res: Response): Promise<void> => {
     const id = req.body.id;
     const token = req.body.token;
 
     const tokenVerification = authenticateToken(token);
     if (!tokenVerification.valid) {
-        return res.status(401).json({ message: 'Invalid token' });
+        res.status(401).json({ message: 'Invalid token' });
+        return;
     }
 
     const role = getRoleFromId(tokenVerification.userId);
     
     if (await role !== 'admin') {
-        return res.status(403).json({ message: 'Unauthorized' });
+        res.status(403).json({ message: 'Unauthorized' });
+        return;
     }
 
     try {
@@ -433,19 +445,21 @@ app.put('/PUT/validate-user', async (req, res) => {
 });
 
 // validstion de la cotisation d'un utilisateur
-app.put('/PUT/validate-cotisation', async (req, res) => {
+app.put('/PUT/validate-cotisation', async (req: Request, res: Response): Promise<void> => {
     const id = req.body.id;
     const token = req.body.token;
 
     const tokenVerification = authenticateToken(token);
     if (!tokenVerification.valid) {
-        return res.status(401).json({ message: 'Invalid token' });
+        res.status(401).json({ message: 'Invalid token' });
+        return;
     }
 
     const role = getRoleFromId(tokenVerification.userId);
     
     if (await role !== 'admin') {
-        return res.status(403).json({ message: 'Unauthorized' });
+        res.status(403).json({ message: 'Unauthorized' });
+        return;
     }
 
     try {
@@ -464,26 +478,29 @@ app.put('/PUT/validate-cotisation', async (req, res) => {
 /*------------------------------------------GET---------------------------------------------- */
 
 // Connexion d'un utilisateur
-app.get('/GET/connexion', async (req, res) => {
+app.get('/GET/connexion', async (req: Request, res: Response): Promise<void> => {
     const { mail, mdp } = req.query;
 
     try {
         const [rows]: any = await connexion.promise().query(`SELECT * FROM utilisateur WHERE mail = ?`, [mail]);
 
         if (rows.length === 0) {
-            return res.status(404).json({ message: 'User not found' });
+            res.status(404).json({ message: 'User not found' });
+            return;
         }
 
         const user = rows[0];
 
         if (user.statut === 0) {
-            return res.status(403).json({ message: 'User not validated' });
+            res.status(403).json({ message: 'User not validated' });
+            return;
         }
 
         const isPasswordValid = comparePassword(mdp as string, user.mdp);
 
         if (!isPasswordValid) {
-            return res.status(401).json({ message: 'Invalid password' });
+            res.status(401).json({ message: 'Invalid password' });
+            return;
         }
 
         const token = generateToken({ id: user.id_utilisateur });
@@ -495,34 +512,38 @@ app.get('/GET/connexion', async (req, res) => {
 });
 
 // Vérification d'un token
-app.get('/GET/verify-token', (req, res) => {
+app.get('/GET/verify-token', (req: Request, res: Response) => {
     const token = req.query.token;
 
     if (!token) {
-        return res.status(400).json({ message: 'Token is missing' });
+        res.status(400).json({ message: 'Token is missing' });
+        return;
     }
 
     const tokenVerification = authenticateToken(token);
     
     if (!tokenVerification.valid) {
-        return res.status(401).json({ message: 'Invalid token' });
+        res.status(401).json({ message: 'Invalid token' });
+        return;
     }
 
     res.status(200).json({ message: 'Token is valid', valid: tokenVerification.valid, userId: tokenVerification.userId });
 });
 
 // récupération liste des utilisateurs
-app.get('/GET/users', async (req, res) => {
+app.get('/GET/users', async (req: Request, res: Response): Promise<void> => {
     const token = req.query.token;
 
     if (!token) {
-        return res.status(400).json({ message: 'Token is missing' });
+        res.status(400).json({ message: 'Token is missing' });
+        return;
     }
 
     const tokenVerification = authenticateToken(token);
     
     if (!tokenVerification.valid) {
-        return res.status(401).json({ message: 'Invalid token' });
+        res.status(401).json({ message: 'Invalid token' });
+        return;
     }
 
     const userId = getUserIdFromToken(token);
@@ -539,17 +560,19 @@ app.get('/GET/users', async (req, res) => {
 });
 
 // récupération liste des tags
-app.get('/GET/tags', async (req, res) => {
+app.get('/GET/tags', async (req: Request, res: Response): Promise<void> => {
     const token = req.query.token;
 
     if (!token) {
-        return res.status(400).json({ message: 'Token is missing' });
+        res.status(400).json({ message: 'Token is missing' });
+        return;
     }
 
     const tokenVerification = authenticateToken(token);
     
     if (!tokenVerification.valid) {
-        return res.status(401).json({ message: 'Invalid token' });
+        res.status(401).json({ message: 'Invalid token' });
+        return;
     }
 
     try {
@@ -562,20 +585,22 @@ app.get('/GET/tags', async (req, res) => {
 });
 
 // récupération des photos avec pagination
-app.get('/GET/photosid', async (req, res) => {
+app.get('/GET/photosid', async (req: Request, res: Response): Promise<void> => {
     const token = req.query.token;
     const page = parseInt(req.query.page as string) || 1;
     const limit = 10;
     const offset = (page - 1) * limit;
 
     if (!token) {
-        return res.status(400).json({ message: 'Token is missing' });
+        res.status(400).json({ message: 'Token is missing' });
+        return;
     }
 
     const tokenVerification = authenticateToken(token);
     
     if (!tokenVerification.valid) {
-        return res.status(401).json({ message: 'Invalid token' });
+        res.status(401).json({ message: 'Invalid token' });
+        return;
     }
 
     try {
@@ -590,18 +615,20 @@ app.get('/GET/photosid', async (req, res) => {
     }
 });
 
-app.get('/GET/photo/metadata', async (req, res) => {
+app.get('/GET/photo/metadata', async (req: Request, res: Response): Promise<void> => {
     const id = req.query.id;
     const token = req.query.token;
 
     if (!token) {
-        return res.status(400).json({ message: 'Token is missing' });
+        res.status(400).json({ message: 'Token is missing' });
+        return;
     }
 
     const tokenVerification = authenticateToken(token);
     
     if (!tokenVerification.valid) {
-        return res.status(401).json({ message: 'Invalid token' });
+        res.status(401).json({ message: 'Invalid token' });
+        return;
     }
 
     try {
@@ -612,7 +639,8 @@ app.get('/GET/photo/metadata', async (req, res) => {
         );
 
         if (rows.length === 0) {
-            return res.status(404).json({ message: 'Photo not found' });
+            res.status(404).json({ message: 'Photo not found' });
+            return;
         }
 
         const photo = rows[0];
@@ -626,7 +654,8 @@ app.get('/GET/photo/metadata', async (req, res) => {
         // Transformer les utilisateurs en objets simples
         const utilisateur = users.find((user: { id_utilisateur: any; }) => user.id_utilisateur === photo.id_utilisateur);
         if (!utilisateur) {
-            return res.status(404).json({ message: 'Primary user not found' });
+            res.status(404).json({ message: 'Primary user not found' });
+            return;
         }
 
         // Assurer que les propriétés de l'utilisateur sont des valeurs primitives
@@ -666,18 +695,20 @@ app.get('/GET/photo/metadata', async (req, res) => {
 
 
 // récupération des tags d'une photo
-app.get('/GET/photo/tags', async (req, res) => {
+app.get('/GET/photo/tags', async (req: Request, res: Response): Promise<void> => {
     const id = req.query.id;
     const token = req.query.token;
 
     if (!token) {
-        return res.status(400).json({ message: 'Token is missing' });
+        res.status(400).json({ message: 'Token is missing' });
+        return;
     }
 
     const tokenVerification = authenticateToken(token);
     
     if (!tokenVerification.valid) {
-        return res.status(401).json({ message: 'Invalid token' });
+        res.status(401).json({ message: 'Invalid token' });
+        return;
     }
 
     try {
@@ -689,7 +720,8 @@ app.get('/GET/photo/tags', async (req, res) => {
         );
 
         if (rows.length === 0) {
-            return res.status(404).json({ message: 'No tags found for this photo' });
+            res.status(404).json({ message: 'No tags found for this photo' });
+            return;
         }
 
         res.status(200).json(rows);
@@ -700,7 +732,7 @@ app.get('/GET/photo/tags', async (req, res) => {
 });
 
 // récupération miniature des photos
-app.get('/GET/photo/filemin', async (req, res) => {
+app.get('/GET/photo/filemin', async (req: Request, res: Response): Promise<void> => {
     const id = req.query.id;
 
     try {
@@ -710,7 +742,8 @@ app.get('/GET/photo/filemin', async (req, res) => {
         );
 
         if (rows.length === 0) {
-            return res.status(404).json({ message: 'Photo not found' });
+            res.status(404).json({ message: 'Photo not found' });
+            return;
         }
 
         const photoDirectory = path.join(__dirname, 'minphoto');
@@ -718,7 +751,8 @@ app.get('/GET/photo/filemin', async (req, res) => {
         const photoFile = photoFiles.find(file => path.parse(file).name === id);
 
         if (!photoFile) {
-            return res.status(404).json({ message: 'Photo file not found' });
+            res.status(404).json({ message: 'Photo file not found' });
+            return;
         }
 
         const photoPath = path.join(photoDirectory, photoFile);
@@ -730,16 +764,18 @@ app.get('/GET/photo/filemin', async (req, res) => {
 });
 
 // récupération d'une photo
-app.get('/GET/photo/file', async (req, res) => {
+app.get('/GET/photo/file', async (req: Request, res: Response): Promise<void> => {
     const { id, token } = req.query;
 
     if (!token) {
-        return res.status(400).json({ message: 'Token is missing' });
+        res.status(400).json({ message: 'Token is missing' });
+        return;
     }
 
     const tokenVerification = authenticateToken(token as string);
     if (!tokenVerification.valid) {
-        return res.status(401).json({ message: 'Invalid token' });
+        res.status(401).json({ message: 'Invalid token' });
+        return;
     }
 
     try {
@@ -749,7 +785,8 @@ app.get('/GET/photo/file', async (req, res) => {
         );
 
         if (rows.length === 0) {
-            return res.status(404).json({ message: `Photo not found ${id}` });
+            res.status(404).json({ message: `Photo not found ${id}` });
+            return;
         }
 
         const photoDirectory = path.join(__dirname, 'photo');
@@ -757,7 +794,8 @@ app.get('/GET/photo/file', async (req, res) => {
         const photoFile = photoFiles.find(file => path.parse(file).name === id);
 
         if (!photoFile) {
-            return res.status(404).json({ message: 'Photo file not found' });
+            res.status(404).json({ message: 'Photo file not found' });
+            return;
         }
 
         const photoPath = path.join(photoDirectory, photoFile);
@@ -769,17 +807,19 @@ app.get('/GET/photo/file', async (req, res) => {
 });
 
 // récupération des évènements
-app.get('/GET/events', async (req, res) => {
+app.get('/GET/events', async (req: Request, res: Response): Promise<void> => {
     const token = req.query.token;
 
     if (!token) {
-        return res.status(400).json({ message: 'Token is missing' });
+        res.status(400).json({ message: 'Token is missing' });
+        return;
     }
 
     const tokenVerification = authenticateToken(token);
     
     if (!tokenVerification.valid) {
-        return res.status(401).json({ message: 'Invalid token' });
+        res.status(401).json({ message: 'Invalid token' });
+        return;
     }
 
     const userId = getUserIdFromToken(token);
@@ -805,22 +845,25 @@ app.get('/GET/events', async (req, res) => {
 });
 
 // récupération des IDs des commentaires triés du plus récent au plus ancien
-app.get('/GET/commentaires', async (req, res) => {
+app.get('/GET/commentaires', async (req: Request, res: Response): Promise<void> => {
     const id = req.query.id_photo;
     const token = req.query.token;
 
     if (!token) {
-        return res.status(400).json({ message: 'Token is missing' });
+        res.status(400).json({ message: 'Token is missing' });
+        return;
     }
 
     const tokenVerification = authenticateToken(token);
     
     if (!tokenVerification.valid) {
-        return res.status(401).json({ message: 'Invalid token' });
+        res.status(401).json({ message: 'Invalid token' });
+        return;
     }
 
     if (!id || isNaN(Number(id))) {
-        return res.status(400).json({ message: 'Invalid or missing id_photo parameter' });
+        res.status(400).json({ message: 'Invalid or missing id_photo parameter' });
+        return;
     }    
 
     try {
@@ -830,7 +873,8 @@ app.get('/GET/commentaires', async (req, res) => {
         );
 
         if (commentIds.length === 0) {
-            return res.status(404).json({ message: 'No comments found for this photo' });
+            res.status(404).json({ message: 'No comments found for this photo' });
+            return;
         }
 
         res.status(200).json({
@@ -843,22 +887,25 @@ app.get('/GET/commentaires', async (req, res) => {
 });
 
 // récupération d'un commentaire avec l'utilisateur associé
-app.get('/GET/commentaire', async (req, res) => {
+app.get('/GET/commentaire', async (req: Request, res: Response): Promise<void> => {
     const { id, token } = req.query;
 
     // Vérification du token
     if (!token) {
-        return res.status(400).json({ message: 'Token is missing' });
+        res.status(400).json({ message: 'Token is missing' });
+        return;
     }
 
     const tokenVerification = authenticateToken(token as string);
     if (!tokenVerification.valid) {
-        return res.status(401).json({ message: 'Invalid token' });
+        res.status(401).json({ message: 'Invalid token' });
+        return;
     }
 
     // Validation de l'ID
     if (!id || isNaN(Number(id))) {
-        return res.status(400).json({ message: 'Invalid or missing id parameter' });
+        res.status(400).json({ message: 'Invalid or missing id parameter' });
+        return;
     }
 
     try {
@@ -899,7 +946,8 @@ app.get('/GET/commentaire', async (req, res) => {
         
         // Vérification si le commentaire existe
         if (rows.length === 0) {
-            return res.status(404).json({ message: 'Comment not found' });
+            res.status(404).json({ message: 'Comment not found' });
+            return;
         }
 
         // Retourner le commentaire au frontend
@@ -912,22 +960,25 @@ app.get('/GET/commentaire', async (req, res) => {
 
 
 // récupération des IDs des commentaires triés du plus récent au plus ancien
-app.get('/GET/commentaires', async (req, res) => {
+app.get('/GET/commentaires', async (req: Request, res: Response): Promise<void> => {
     const id = req.query.id_photo;
     const token = req.query.token;
 
     if (!token) {
-        return res.status(400).json({ message: 'Token is missing' });
+        res.status(400).json({ message: 'Token is missing' });
+        return;
     }
 
     const tokenVerification = authenticateToken(token);
     
     if (!tokenVerification.valid) {
-        return res.status(401).json({ message: 'Invalid token' });
+        res.status(401).json({ message: 'Invalid token' });
+        return;
     }
 
     if (!id || isNaN(Number(id))) {
-        return res.status(400).json({ message: 'Invalid or missing id_photo parameter' });
+        res.status(400).json({ message: 'Invalid or missing id_photo parameter' });
+        return;
     }    
 
     try {
@@ -937,7 +988,8 @@ app.get('/GET/commentaires', async (req, res) => {
         );
 
         if (commentIds.length === 0) {
-            return res.status(404).json({ message: 'No comments found for this photo' });
+            res.status(404).json({ message: 'No comments found for this photo' });
+            return;
         }
 
         res.status(200).json({
@@ -950,22 +1002,25 @@ app.get('/GET/commentaires', async (req, res) => {
 });
 
 // récupération d'un commentaire avec l'utilisateur associé
-app.get('/GET/commentaire', async (req, res) => {
+app.get('/GET/commentaire', async (req: Request, res: Response): Promise<void> => {
     const { id, token } = req.query;
 
     // Vérification du token
     if (!token) {
-        return res.status(400).json({ message: 'Token is missing' });
+        res.status(400).json({ message: 'Token is missing' });
+        return;
     }
 
     const tokenVerification = authenticateToken(token as string);
     if (!tokenVerification.valid) {
-        return res.status(401).json({ message: 'Invalid token' });
+        res.status(401).json({ message: 'Invalid token' });
+        return;
     }
 
     // Validation de l'ID
     if (!id || isNaN(Number(id))) {
-        return res.status(400).json({ message: 'Invalid or missing id parameter' });
+        res.status(400).json({ message: 'Invalid or missing id parameter' });
+        return;
     }
 
     try {
@@ -1006,7 +1061,8 @@ app.get('/GET/commentaire', async (req, res) => {
         
         // Vérification si le commentaire existe
         if (rows.length === 0) {
-            return res.status(404).json({ message: 'Comment not found' });
+            res.status(404).json({ message: 'Comment not found' });
+            return;
         }
 
         // Retourner le commentaire au frontend
@@ -1019,17 +1075,19 @@ app.get('/GET/commentaire', async (req, res) => {
 
 
 /* Profil Utilisateur */
-app.get('/GET/utilisateur', async (req, res) => {
+app.get('/GET/utilisateur', async (req: Request, res: Response): Promise<void> => {
     const token = req.query.token;
 
     if (!token) {
-        return res.status(400).json({ message: 'Token is missing' });
+        res.status(400).json({ message: 'Token is missing' });
+        return;
     }
 
     const tokenVerification = authenticateToken(token);
     
     if (!tokenVerification?.valid) {
-        return res.status(401).json({ message: 'Invalid token' });
+        res.status(401).json({ message: 'Invalid token' });
+        return;
     }
 
     try {
@@ -1038,7 +1096,8 @@ app.get('/GET/utilisateur', async (req, res) => {
 
         // Vérification si l'utilisateur existe
         if (rows.length === 0) {
-            return res.status(404).json({ message: 'User not found' });
+            res.status(404).json({ message: 'User not found' });
+            return;
         }
 
         // Envoi des informations utilisateur
@@ -1050,7 +1109,7 @@ app.get('/GET/utilisateur', async (req, res) => {
 })
 
 // récupération id photos publique aléatoire pour la page d'accueil
-app.get('/GET/random-photos', async (req, res) => {
+app.get('/GET/random-photos', async (req: Request, res: Response): Promise<void> => {
     try {
         const [rows]: any = await connexion.promise().query(`SELECT DISTINCT id_photo FROM photo WHERE isPublic = 1 AND id_visionnage IS NULL ORDER BY RAND() LIMIT 6`);
         res.status(200).json(rows);
@@ -1061,17 +1120,19 @@ app.get('/GET/random-photos', async (req, res) => {
 });
 
 // vérification role utilisateur
-app.get('/GET/user-role', async (req, res) => {
+app.get('/GET/user-role', async (req: Request, res: Response): Promise<void> => {
     const token = req.query.token;
 
     if (!token) {
-        return res.status(400).json({ message: 'Token is missing' });
+        res.status(400).json({ message: 'Token is missing' });
+        return;
     }
 
     const tokenVerification = authenticateToken(token);
     
     if (!tokenVerification?.valid) {
-        return res.status(401).json({ message: 'Invalid token' });
+        res.status(401).json({ message: 'Invalid token' });
+        return;
     }
 
     try {
@@ -1085,25 +1146,28 @@ app.get('/GET/user-role', async (req, res) => {
 })
 
 // récupération d'un utilisateur par son ID
-app.get('/GET/userid', async (req, res) => {
+app.get('/GET/userid', async (req: Request, res: Response): Promise<void> => {
     const id = req.query.id;
     const token = req.query.token;
 
     if (!token) {
-        return res.status(400).json({ message: 'Token is missing' });
+        res.status(400).json({ message: 'Token is missing' });
+        return;
     }
 
     const tokenVerification = authenticateToken(token);
 
     if (!tokenVerification?.valid) {
-        return res.status(401).json({ message: 'Invalid token' });
+        res.status(401).json({ message: 'Invalid token' });
+        return;
     }
 
     try {
         const [rows]: any = await connexion.promise().query('SELECT * FROM utilisateur WHERE id_utilisateur = ?', [id]);
 
         if (rows.length === 0) {
-            return res.status(404).json({ message: 'User not found', id });
+            res.status(404).json({ message: 'User not found', id });
+            return;
         }
 
         res.status(200).json(rows[0]);
@@ -1114,17 +1178,19 @@ app.get('/GET/userid', async (req, res) => {
 });
 
 // récupération des id des utilisateur non validé et/ou non cotisé
-app.get('/GET/users-not-validated', async (req, res) => {
+app.get('/GET/users-not-validated', async (req: Request, res: Response): Promise<void> => {
     const token = req.query.token;
 
     if (!token) {
-        return res.status(400).json({ message: 'Token is missing' });
+        res.status(400).json({ message: 'Token is missing' });
+        return;
     }
 
     const role = getRoleFromId(getUserIdFromToken(token));
 
     if (await role !== 'admin') {
-        return res.status(403).json({ message: 'Unauthorized' });
+        res.status(403).json({ message: 'Unauthorized' });
+        return;
     }
 
     try {
@@ -1137,7 +1203,7 @@ app.get('/GET/users-not-validated', async (req, res) => {
 });
 
 // récupération nombre de commantaire photo
-app.get('/GET/commentaires-count', async (req, res) => {
+app.get('/GET/commentaires-count', async (req: Request, res: Response): Promise<void> => {
     const id = req.query.id_photo;
 
     try {
@@ -1154,11 +1220,12 @@ app.get('/GET/commentaires-count', async (req, res) => {
 });
 
 // vérification participation a un event
-app.get('/GET/is-participating', async (req, res) => {
+app.get('/GET/is-participating', async (req: Request, res: Response): Promise<void> => {
     const { id_evenement, token } = req.query;
 
     if (!token) {
-        return res.status(400).json({ message: 'Token is missing' });
+        res.status(400).json({ message: 'Token is missing' });
+        return;
     }
 
     const userId = getUserIdFromToken(token);
@@ -1170,7 +1237,8 @@ app.get('/GET/is-participating', async (req, res) => {
         );
 
         if (rows.length === 0) {
-            return res.status(404).json({ message: 'Participation not found', userId, id_evenement });
+            res.status(404).json({ message: 'Participation not found', userId, id_evenement });
+            return;
         }
 
         res.status(200).json({ presence: rows[0].presence });
@@ -1181,11 +1249,12 @@ app.get('/GET/is-participating', async (req, res) => {
 });
 
 //récupération de toute les info d'un utilisateur
-app.get('/GET/user', async (req, res) => {
+app.get('/GET/user', async (req: Request, res: Response): Promise<void> => {
     const token = req.query.token;
 
     if (!token) {
-        return res.status(400).json({ message: 'Token is missing' });
+        res.status(400).json({ message: 'Token is missing' });
+        return;
     }
 
     const userId = getUserIdFromToken(token);
@@ -1194,7 +1263,8 @@ app.get('/GET/user', async (req, res) => {
         const [rows]: any = await connexion.promise().query('SELECT pseudo, nom, prenom, adresse, cp, ville, telephone, mail, notif_mail FROM utilisateur WHERE id_utilisateur = ?', [userId]);
 
         if (rows.length === 0) {
-            return res.status(404).json({ message: `User ${userId} not found` });
+            res.status(404).json({ message: `User ${userId} not found` });
+            return;
         }
 
         res.status(200).json(rows[0]);
@@ -1205,11 +1275,12 @@ app.get('/GET/user', async (req, res) => {
 });
 
 // récupération des photos liées a un visionnage dans un ordre aléatoire
-app.get('/GET/visionnage-photos', async (req, res) => {
+app.get('/GET/visionnage-photos', async (req: Request, res: Response): Promise<void> => {
     const { id, token } = req.query;
 
     if (!token) {
-        return res.status(400).json({ message: 'Token is missing' });
+        res.status(400).json({ message: 'Token is missing' });
+        return;
     }
 
     try {
@@ -1226,7 +1297,7 @@ app.get('/GET/visionnage-photos', async (req, res) => {
 });
 
 // récupération idvisionnage avec id evenement
-app.get('/GET/visionnage', async (req, res) => {
+app.get('/GET/visionnage', async (req: Request, res: Response): Promise<void> => {
     const id = req.query.id_evenement;
 
     try {
@@ -1236,7 +1307,8 @@ app.get('/GET/visionnage', async (req, res) => {
         );
 
         if (rows.length === 0) {
-            return res.status(404).json({ message: 'Visionnage not found' });
+            res.status(404).json({ message: 'Visionnage not found' });
+            return;
         }
 
         res.status(200).json(rows[0].id_visionnage);
@@ -1247,7 +1319,7 @@ app.get('/GET/visionnage', async (req, res) => {
 });
 
 //récupéraition liste des documents par date de dépot
-app.get('/GET/documents', async (req, res) => {
+app.get('/GET/documents', async (req: Request, res: Response): Promise<void> => {
     try {
         const [rows]: any = await connexion.promise().query(`SELECT id_document FROM document ORDER BY date_depot DESC`);
         res.status(200).json(rows);
@@ -1258,11 +1330,12 @@ app.get('/GET/documents', async (req, res) => {
 });
 
 // récupération d'un document
-app.get('/GET/document', async (req, res) => {
+app.get('/GET/document', async (req: Request, res: Response): Promise<void> => {
     const { id, token } = req.query;
 
     if (!token) {
-        return res.status(400).json({ message: 'Token is missing' });
+        res.status(400).json({ message: 'Token is missing' });
+        return;
     }
 
     try {
@@ -1272,7 +1345,8 @@ app.get('/GET/document', async (req, res) => {
         );
 
         if (rows.length === 0) {
-            return res.status(404).json({ message: 'Document not found' });
+            res.status(404).json({ message: 'Document not found' });
+            return;
         }
 
         res.status(200).json(rows[0]);
@@ -1283,11 +1357,12 @@ app.get('/GET/document', async (req, res) => {
 });
 
 // récupération d'un fichier document
-app.get('/GET/document/file', async (req, res) => {
+app.get('/GET/document/file', async (req: Request, res: Response): Promise<void> => {
     const { id, token } = req.query;
 
     if (!token) {
-        return res.status(400).json({ message: 'Token is missing' });
+        res.status(400).json({ message: 'Token is missing' });
+        return;
     }
 
     try {
@@ -1297,7 +1372,8 @@ app.get('/GET/document/file', async (req, res) => {
         );
 
         if (rows.length === 0) {
-            return res.status(404).json({ message: 'Document not found' });
+            res.status(404).json({ message: 'Document not found' });
+            return;
         }
 
         const documentDirectory = path.join(__dirname, 'document');
@@ -1305,7 +1381,8 @@ app.get('/GET/document/file', async (req, res) => {
         const documentFile = documentFiles.find(file => path.parse(file).name === id);
 
         if (!documentFile) {
-            return res.status(404).json({ message: 'Document file not found' });
+            res.status(404).json({ message: 'Document file not found' });
+            return;
         }
 
         const documentPath = path.join(documentDirectory, documentFile);
