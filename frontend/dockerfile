@@ -1,20 +1,23 @@
-# Utilisez l'image de base de votre choix
+# Utiliser l'image de base node
 FROM node:latest
 
-# Définissez le répertoire de travail dans le conteneur
+# Définir le répertoire de travail dans le conteneur
 WORKDIR /app
 
-# Copiez les fichiers du projet dans le conteneur
-COPY . .
+# Copier package.json et yarn.lock pour installer les dépendances
+COPY package.json yarn.lock ./
 
-# Installez les dépendances avec yarn
+# Installer les dépendances
 RUN yarn install
 
-# Construisez l'application frontend
+# Copier les fichiers du projet dans le conteneur
+COPY . .
+
+# Construire le projet TypeScript
 RUN yarn build
 
-# Exposez le port utilisé par l'application
-EXPOSE 3000
+# Exposer le port utilisé par l'application
+EXPOSE 8080
 
-# Commande pour démarrer le serveur de développement
+# Commande pour démarrer l'application
 CMD ["yarn", "start"]
