@@ -2,7 +2,7 @@
 
 # Vérifier que le script est exécuté en tant que root
 if [ "$EUID" -ne 0 ]; then
-    echo "Veuillez exécuter ce script en tant que root."
+    echo "erreur: Veuillez exécuter ce script en tant que root. Utilisez la commande suivante : sudo bash installation.sh"
     exit 1
 fi
 
