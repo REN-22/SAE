@@ -4,11 +4,17 @@ FROM node:latest
 # Définir le répertoire de travail dans le conteneur
 WORKDIR /app
 
+# Ajuster les permissions
+RUN chmod -R 755 /app
+
 # Copier package.json et yarn.lock pour installer les dépendances
 COPY package.json yarn.lock ./
 
 # Installer les dépendances
 RUN yarn install
+
+# Installer TypeScript globalement
+RUN yarn global add typescript
 
 # Copier les fichiers du projet dans le conteneur
 COPY . .
