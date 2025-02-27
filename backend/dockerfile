@@ -22,6 +22,9 @@ COPY . .
 # installation des déclarations de types pour multer et jsonwebtoken
 RUN yarn add @types/multer @types/jsonwebtoken --dev
 
+# YARN
+RUN yarn
+
 # Construire le projet TypeScript
 RUN yarn build
 
