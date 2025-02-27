@@ -6,6 +6,9 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
+# installer unzip
+apt-get install unzip -y
+
 # Télécharger le dépôt git de l'application sans demander de se connecter à GitHub
 wget https://github.com/REN-22/SAE/archive/refs/heads/main.zip -O SAE.zip
 unzip SAE.zip
