@@ -15,7 +15,7 @@ unzip SAE.zip
 rm SAE.zip
 
 # Se déplacer dans le répertoire de l'application
-cd SAE
+cd SAE-main
 
 # Demander à l'utilisateur de saisir l'email et le mot de passe de l'administrateur
 read -p "Veuillez entrer l'email de l'administrateur : " admin_email
