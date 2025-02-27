@@ -23,7 +23,7 @@ COPY . .
 RUN chmod -R 755 /app
 
 # Exposer le port utilisé par l'application
-EXPOSE 8080
+EXPOSE 3000
 
 # Commande pour démarrer l'application
 CMD ["yarn", "start"]
