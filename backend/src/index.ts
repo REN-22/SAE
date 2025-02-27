@@ -1,15 +1,14 @@
 import connexion from './db_connexion';
-import express from 'express';
+import express, { Request, Response } from 'express';
 import mysql from 'mysql2/promise';
 import { hashPassword, comparePassword } from './hashage';
 import { generateToken, authenticateToken, getUserIdFromToken, getRoleFromId } from './jwt';
-const cors = require('cors');
+import cors from 'cors';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import sharp from 'sharp';
-import { console } from 'inspector';
-import {ExifParserFactory} from "ts-exif-parser";
+import {ExifParserFactory} from 'ts-exif-parser';
 
 const app = express();
 const PORT = 5000;
@@ -32,7 +31,6 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
-
 
 
 /*------------------------------------------POST---------------------------------------------- */

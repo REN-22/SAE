@@ -26,7 +26,7 @@ RUN yarn add @types/multer @types/jsonwebtoken --dev
 RUN yarn
 
 # mise a jour des paquets de types
-RUN yarn upgrade @types/express @types/multer
+RUN yarn upgrade @types/express @types/multer @types/express-serve-static-core
 
 # Exposer le port utilisé par l'application
 EXPOSE 5000
