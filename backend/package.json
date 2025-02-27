@@ -20,7 +20,7 @@
   "license": "MIT",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "ts-node src/index"
+    "start": "ts-node src/index.ts"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17"
