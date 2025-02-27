@@ -1,5 +1,17 @@
 #!/bin/bash
 
+# Vérifier que le script est exécuté en tant que root
+if [ "$EUID" -ne 0 ]; then
+    echo "Veuillez exécuter ce script en tant que root."
+    exit 1
+fi
+
+# telecharger le repogit de l'application
+git clone https://github.com/REN-22/SAE.git
+
+# Se déplacer dans le répertoire de l'application
+cd SAE
+
 # Demander à l'utilisateur de saisir l'email et le mot de passe de l'administrateur
 read -p "Veuillez entrer l'email de l'administrateur : " admin_email
 read -s -p "Veuillez entrer le mot de passe de l'administrateur : " admin_password
