@@ -6,8 +6,10 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
-# telecharger le repogit de l'application
-git clone https://github.com/REN-22/SAE.git
+# Télécharger le dépôt git de l'application sans demander de se connecter à GitHub
+wget https://github.com/REN-22/SAE/archive/refs/heads/main.zip -O SAE.zip
+unzip SAE.zip
+rm SAE.zip
 
 # Se déplacer dans le répertoire de l'application
 cd SAE
