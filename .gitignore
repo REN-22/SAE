@@ -27,6 +27,7 @@
 /backend/src/photo
 /backend/src/exif
 /backend/src/document
+/backend/dist
 
 # sonardQube
 /.scannerwork

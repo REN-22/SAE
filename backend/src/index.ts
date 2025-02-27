@@ -1,5 +1,5 @@
 import connexion from './db_connexion';
-import express, { Request, Response } from 'express';
+import express from 'express';
 import mysql from 'mysql2/promise';
 import { hashPassword, comparePassword } from './hashage';
 import { generateToken, authenticateToken, getUserIdFromToken, getRoleFromId } from './jwt';

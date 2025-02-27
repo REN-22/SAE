@@ -25,6 +25,7 @@ RUN yarn add @types/multer @types/jsonwebtoken --dev
 # YARN
 RUN yarn
 
+RUN ls
 # Construire le projet TypeScript
 RUN yarn build
 
