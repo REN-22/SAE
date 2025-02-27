@@ -9,6 +9,11 @@ fi
 # installer unzip
 apt-get install unzip -y
 
+# vérifier que le dépôt n'est pas déjà cloné
+if [ -d "SAE-main" ]; then
+    rm -rf SAE-main
+fi
+
 # Télécharger le dépôt git de l'application sans demander de se connecter à GitHub
 wget https://github.com/REN-22/SAE/archive/refs/heads/main.zip -O SAE.zip
 unzip -o SAE.zip
