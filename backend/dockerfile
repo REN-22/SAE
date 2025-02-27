@@ -25,11 +25,6 @@ RUN yarn add @types/multer @types/jsonwebtoken --dev
 # YARN
 RUN yarn
 
-RUN ls
-
-# Construire le projet TypeScript
-RUN yarn build
-
 # Exposer le port utilisé par l'application
 EXPOSE 8080
 
