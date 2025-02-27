@@ -13,14 +13,14 @@
   text-align: center;
   font-size: 24px;
   margin-bottom: 20px;
-  color: #222;
+  color: #ffffff;
 }
 
 .UploadSection h2 {
     text-align: center;
     font-size: 24px;
     margin-bottom: 20px;
-    color: #222;
+    color: #ffffff;
   }
 
 .DocOblig {
@@ -44,8 +44,8 @@
 }
 
 .MenuFil button {
-    background-color: #77B5FE; /* Couleur de fond */
-    color: white; /* Couleur du texte */
+    background-color: #ff9000; /* Couleur de fond */
+    color: rgb(0, 0, 0); /* Couleur du texte */
     border: none; /* Supprime les bordures */
     padding: 10px 20px; /* Rembourrage */
     margin: 5px 0; /* Espacement vertical entre les boutons */
@@ -59,7 +59,7 @@
 }
 
 .MenuFil button:hover {
-    background-color: #455ca0; /* Couleur légèrement différente au survol */
+    background-color: #cc7a00; /* Couleur légèrement différente au survol */
 }
 
 .UploadSection{

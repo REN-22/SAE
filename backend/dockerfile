@@ -1,0 +1,17 @@
+# Utilisez l'image de base de votre choix
+FROM node:latest
+
+# Définissez le répertoire de travail dans le conteneur
+WORKDIR /app
+
+# Copiez les fichiers du projet dans le conteneur
+COPY . .
+
+# Installez les dépendances avec yarn
+RUN yarn install
+
+# Exposez le port utilisé par l'application
+EXPOSE 8080
+
+# Commande pour démarrer l'application
+CMD ["yarn", "start"]

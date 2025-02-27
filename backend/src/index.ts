@@ -88,7 +88,7 @@ app.post('/POST/upload-photo', upload.fields([{ name: 'photo', maxCount: 1 }]), 
     }
 
     const info = JSON.parse(req.body.info);
-    const { nom, nomphoto, description, isPublic, photographe, tags, idvisionnage } = info; // `tags` contient une liste d'IDs des mots-clés
+    const { nom, nomphoto, description, isPublic, tags, idvisionnage } = info; // `tags` contient une liste d'IDs des mots-clés
     const token = req.body.token;
 
     const tokenVerification = authenticateToken(token);
@@ -194,7 +194,6 @@ app.post('/POST/upload-photo', upload.fields([{ name: 'photo', maxCount: 1 }]), 
                 description,
                 isPublic,
                 id_utilisateur: tokenVerification.userId,
-                photographe,
                 photoFilePath,
                 minPhotoFilePath,
                 tags
@@ -338,6 +337,69 @@ app.post('/POST/update-participation', async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// upload données bd d'un document et son fichier
+app.post('/POST/upload-document', upload.single('file'), async (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ message: 'No file uploaded' });
+    }
+
+    const { nom, description } = req.body;
+    let { idEvenement } = req.body;
+    idEvenement = idEvenement ?? null;
+    const token = req.body.token;
+
+    const tokenVerification = authenticateToken(token);
+    if (!tokenVerification.valid) {
+        return res.status(401).json({ message: 'Invalid token' });
+    }
+
+    const userId = getUserIdFromToken(token);
+    const date_depot = new Date();
+
+    try {
+        // Étape 1 : Insérer le document
+        const [result] = await connexion.promise().execute(
+            `INSERT INTO document (nom, date_depot, id_utilisateur, id_evenement, description) 
+             VALUES (?, ?, ?, ?, ?)`,
+            [nom, date_depot, userId, idEvenement, description]
+        );
+
+        const documentId = (result as unknown as mysql.ResultSetHeader).insertId;
+
+        // Étape 2 : Gérer le fichier document
+        const documentFile = req.file;
+
+        // Vérification de l'existence des fichiers
+        if (!fs.existsSync(documentFile.path)) {
+            return res.status(500).json({ message: 'Temporary file not found' });
+        }
+
+        const documentFilePath = path.join(__dirname, 'document', `${documentId}.pdf`);
+
+        await fs.promises.mkdir(path.dirname(documentFilePath), { recursive: true });
+        await fs.promises.rename(documentFile.path, documentFilePath);
+
+        // Étape 3 : Retourner la réponse
+        res.status(201).json({
+            message: 'Document uploaded successfully',
+            document: {
+                id_document: documentId,
+                nom,
+                description,
+                id_utilisateur: userId,
+                id_evenement: idEvenement,
+                documentFilePath
+            }
+        });
+    } catch (error) {
+        // Nettoyage des fichiers téléchargés en cas d'erreur
+        if (req.file?.path) await fs.promises.unlink(req.file.path).catch(console.error);
+
+        console.error(error);
+        res.status(500).json({ message: `Internal Server Error: ${error} description : ${description} nom : ${nom}` });
     }
 });
 
@@ -520,7 +582,7 @@ app.get('/GET/photosid', async (req, res) => {
 
     try {
         const [rows]: any = await connexion.promise().query(
-            `SELECT * FROM photo ORDER BY date_depot DESC LIMIT ? OFFSET ?`,
+            `SELECT * FROM photo WHERE id_visionnage IS NULL ORDER BY date_depot DESC LIMIT ? OFFSET ?`,
             [limit, offset]
         );
         res.status(200).json(rows);
@@ -722,9 +784,22 @@ app.get('/GET/events', async (req, res) => {
         return res.status(401).json({ message: 'Invalid token' });
     }
 
+    const userId = getUserIdFromToken(token);
+
     try {
-        const [rows]: any = await connexion.promise().query(`SELECT * FROM evenement ORDER BY date_heure_debut DESC`);
-        res.status(200).json(rows);
+        const [events]: any = await connexion.promise().query(`SELECT * FROM evenement ORDER BY date_heure_debut DESC`);
+
+        // Vérifier la participation de l'utilisateur pour chaque événement
+        const eventsWithParticipation = await Promise.all(events.map(async (event: any) => {
+            const [participation]: any = await connexion.promise().query(
+                `SELECT presence FROM Participation WHERE id_utilisateur = ? AND id_evenement = ?`,
+                [userId, event.id_evenement]
+            );
+            event.isParticipating = participation.length > 0;
+            return event;
+        }));
+
+        res.status(200).json(eventsWithParticipation);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal Server Error' });
@@ -979,7 +1054,7 @@ app.get('/GET/utilisateur', async (req, res) => {
 // récupération id photos publique aléatoire pour la page d'accueil
 app.get('/GET/random-photos', async (req, res) => {
     try {
-        const [rows]: any = await connexion.promise().query(`SELECT DISTINCT id_photo FROM photo WHERE isPublic = 1 ORDER BY RAND() LIMIT 6`);
+        const [rows]: any = await connexion.promise().query(`SELECT DISTINCT id_photo FROM photo WHERE isPublic = 1 AND id_visionnage IS NULL ORDER BY RAND() LIMIT 6`);
         res.status(200).json(rows);
     } catch (error) {
         console.error(error);
@@ -1167,6 +1242,76 @@ app.get('/GET/visionnage', async (req, res) => {
         }
 
         res.status(200).json(rows[0].id_visionnage);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+//récupéraition liste des documents par date de dépot
+app.get('/GET/documents', async (req, res) => {
+    try {
+        const [rows]: any = await connexion.promise().query(`SELECT id_document FROM document ORDER BY date_depot DESC`);
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: `Internal Server Error ${error}` });
+    }
+});
+
+// récupération d'un document
+app.get('/GET/document', async (req, res) => {
+    const { id, token } = req.query;
+
+    if (!token) {
+        return res.status(400).json({ message: 'Token is missing' });
+    }
+
+    try {
+        const [rows]: any = await connexion.promise().query(
+            `SELECT nom, date_depot, description FROM document WHERE id_document = ?`,
+            [id]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Document not found' });
+        }
+
+        res.status(200).json(rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// récupération d'un fichier document
+app.get('/GET/document/file', async (req, res) => {
+    const { id, token } = req.query;
+
+    if (!token) {
+        return res.status(400).json({ message: 'Token is missing' });
+    }
+
+    try {
+        const [rows]: any = await connexion.promise().query(
+            `SELECT id_document FROM document WHERE id_document = ?`,
+            [id]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Document not found' });
+        }
+
+        const documentDirectory = path.join(__dirname, 'document');
+        const documentFiles = await fs.promises.readdir(documentDirectory);
+        const documentFile = documentFiles.find(file => path.parse(file).name === id);
+
+        if (!documentFile) {
+            return res.status(404).json({ message: 'Document file not found' });
+        }
+
+        const documentPath = path.join(documentDirectory, documentFile);
+        res.sendFile(documentPath);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal Server Error' });

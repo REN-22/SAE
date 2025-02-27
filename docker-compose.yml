@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+  db:
+    image: mysql:latest
+    container_name: mon_container_bd
+    environment:
+      MYSQL_ROOT_PASSWORD: mon_mot_de_passe
+      MYSQL_DATABASE: mon_db
+    networks:
+      - mon_reseau
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  backend:
+    build:
+      context: ./backend
+    container_name: backend_photo
+    ports:
+      - "8080:8080"
+    networks:
+      - mon_reseau
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: frontend_photo
+    ports:
+      - "3000:3000"
+    networks:
+      - mon_reseau
+    depends_on:
+      - backend
+
+networks:
+  mon_reseau:
+    driver: bridge

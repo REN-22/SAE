@@ -1,5 +1,4 @@
-import React, { useEffect } from 'react';
-import { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './pagePrésentation.css';
 
@@ -37,10 +36,10 @@ const PagePrésentation: React.FC = () => {
 
     return (
         <div className="presentation-container">
-            <h1>Bienvenue dans Notre Association</h1>
+            <h1>Bienvenue dans Notre Club</h1>
             <p>
-                Notre association est dédiée à [insérer mission ou objectif de l'association]. 
-                Nous nous efforçons de [insérer activités ou services offerts par l'association].
+                Notre Club est dédiée à [insérer mission ou objectif du Club]. 
+                Nous nous efforçons de [insérer activités du Club].
             </p>
             <h2>Nos Valeurs</h2>
             <ul>

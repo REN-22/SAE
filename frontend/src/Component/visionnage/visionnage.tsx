@@ -17,6 +17,7 @@ const Visionnage: React.FC<VisionnageProps> = ({ setPage, idvisionnage, setIdvis
 
     useEffect(() => {
         const fetchVisionnage = async () => {
+            console.log('idvisionnage :',idvisionnage)
             try {
                 const response = await axios.get(`http://localhost:5000/GET/visionnage-photos`, {
                     params: { id: idvisionnage, token },

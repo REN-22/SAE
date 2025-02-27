@@ -25,7 +25,7 @@ const PageAdmin: React.FC = () => {
     return (
         <div>
             <h1>Page d'administration</h1>
-            <h2>Comptes non validés et/ou cotisation non payer</h2>
+            <h2>Comptes non validés et/ou cotisation non payée</h2>
             <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
                 <ul>
                     {utilisateurs.map(utilisateur => (

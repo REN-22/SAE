@@ -62,11 +62,12 @@ const HeaderInterne: React.FC<HeaderInterneProps> = ({ setPage }) => {
             <nav className={`nav-menu ${isMenuOpen ? 'open' : ''}`}>
                 <ul>
                     <li><button onClick={() => setPage(1)}>Fil</button></li>
-                    <li><button onClick={() => setPage(7)}>evenement</button></li>
-                    <li><button onClick={() => setPage(2)}>Profile</button></li>
+                    <li><button onClick={() => setPage(7)}>Évènements</button></li>
+                    <li><button onClick={() => setPage(6)}>Documents</button></li>
+                    <li><button onClick={() => setPage(2)}>Profil</button></li>
                     {/*<li><button onClick={() => setPage(1)}>options</button></li> */}
-                    {isAdmin && <li><button onClick={() => setPage(9)}>administration</button></li>}
-                    <li><button onClick={handleLogout}>déconnexion</button></li>
+                    {isAdmin && <li><button onClick={() => setPage(9)}>Administration</button></li>}
+                    <li><button onClick={handleLogout}>Déconnexion</button></li>
                 </ul>
             </nav>
         </header>

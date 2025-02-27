@@ -10,6 +10,7 @@ const localizer = momentLocalizer(moment);
 interface CalendrierProps {
     setPage: any;
     setIdvisionnage : any;
+    idvisionnage: any;
 }
 
 interface Event {
@@ -21,6 +22,23 @@ interface Event {
     type: string;
     allDay: boolean;
     id: number;
+    participe: boolean;
+}
+
+const eventPropGetter = (event: Event) => {
+    if (event.participe) {
+        return {
+            style: {
+                backgroundColor: '#FF4000',
+            },
+        };
+    } else {
+        return {
+            style: {
+                backgroundColor: '#ff9000',
+            },
+        };
+    }
 }
 
 const messages = {
@@ -48,30 +66,30 @@ const EventAgenda = ({ event }: { event: Event }) => (
     </span>
 );
 
-const Calendrier: React.FC<CalendrierProps> = ({ setPage, setIdvisionnage }) => {
+const Calendrier: React.FC<CalendrierProps> = ({ setPage, setIdvisionnage, idvisionnage }) => {
     const token = localStorage.getItem('phototoken');
     const [events, setEvents] = React.useState<Event[]>([]);
     const [isAdmin, setIsAdmin] = React.useState(false);
     const [selectedEvent, setSelectedEvent] = React.useState<Event | null>(null);
     const [popupPosition, setPopupPosition] = React.useState<{ x: number, y: number } | null>(null);
-    const [isParticipating, setIsParticipating] = React.useState(false);
-    
+
+
+    const fetchEvents = async () => {
+        try {
+            const response = await axios.get('http://localhost:5000/GET/events', {
+                params: { token }
+            });
+            const data = response.data;
+            console.log('Data:', data);
+            const transformedEvents = data.map(transformEvent);
+            setEvents(transformedEvents);
+            console.log('Events:', transformedEvents);
+        } catch (error) {
+            console.error('Error fetching events:', error);
+        }
+    };
 
     useEffect(() => {
-        const fetchEvents = async () => {
-            try {
-                const response = await axios.get('http://localhost:5000/GET/events', {
-                    params: { token }
-                });
-                const data = response.data;
-                const transformedEvents = data.map(transformEvent);
-                setEvents(transformedEvents);
-                console.log('Events:', transformedEvents);
-            } catch (error) {
-                console.error('Error fetching events:', error);
-            }
-        };
-
         fetchEvents();
     }, [token]);
 
@@ -84,21 +102,22 @@ const Calendrier: React.FC<CalendrierProps> = ({ setPage, setIdvisionnage }) => 
         type: event.type,
         allDay: false,
         id: event.id_evenement,
+        participe: event.isParticipating,
     });
 
-    useEffect(() => {
-        const fetchUserRole = async () => {
-            try {
-                const response = await axios.get('http://localhost:5000/GET/user-role', {
-                    params: { token }
-                });
-                const role = response.data.role;
-                setIsAdmin(role === 'admin');
-            } catch (error) {
-                console.error('Error fetching user role:', error);
-            }
-        };
+    const fetchUserRole = async () => {
+        try {
+            const response = await axios.get('http://localhost:5000/GET/user-role', {
+                params: { token }
+            });
+            const role = response.data.role;
+            setIsAdmin(role === 'admin');
+        } catch (error) {
+            console.error('Error fetching user role:', error);
+        }
+    };
 
+    useEffect(() => {
         fetchUserRole();
     }, [token]);
 
@@ -113,6 +132,7 @@ const Calendrier: React.FC<CalendrierProps> = ({ setPage, setIdvisionnage }) => 
     };
 
     const handleClosePopup = () => {
+        fetchEvents();
         setSelectedEvent(null);
         setPopupPosition(null);
     };
@@ -128,6 +148,7 @@ const Calendrier: React.FC<CalendrierProps> = ({ setPage, setIdvisionnage }) => 
                 alert('Vous êtes déjà inscrit à cet événement.');
             } else {
                 handleClosePopup();
+                console.log('Registered for event:', selectedEvent);
             }
         })
         .catch((error) => {
@@ -137,37 +158,6 @@ const Calendrier: React.FC<CalendrierProps> = ({ setPage, setIdvisionnage }) => 
                 console.error('Error registering for event:', error);
             }
         });
-    };
-
-    const checkParticipation = async (eventid: number) => {
-        console.log('Checking participation for event', eventid);
-        try {
-            const response = await axios.get('http://localhost:5000/GET/is-participating', {
-                params: { id_evenement: eventid, token }
-            });
-            return response.data.presence;
-        } catch (error) {
-            console.error('Error checking participation:', error);
-            return false;
-        }
-    };
-
-    const EventComponent = ({ event }: { event: Event }) => {
-        useEffect(() => {
-            const fetchParticipation = async () => {
-                const participating = await checkParticipation(event.id);
-                setIsParticipating(participating);
-                console.log('Participation:', participating);
-            };
-            fetchParticipation();
-        }, [event.id]);
-
-        const eventClass = isParticipating ? "event-participating" : "event-not-participating";
-        return (
-            <div className={`rbc-event ${eventClass}`}>
-                {event.title}
-            </div>
-        );
     };
 
     const EventPopup = ({ event }: { event: Event }) => {
@@ -198,8 +188,14 @@ const Calendrier: React.FC<CalendrierProps> = ({ setPage, setIdvisionnage }) => 
                     {moment(event.end).isAfter(moment()) && (
                         <button onClick={handleRegister}>S'inscrire</button>
                     )}
-                    <button onClick={() => handleajoutphotovisio(event.id)} >ajouter photo</button>
-                    {isAdmin && <button onClick={() => handlevisio(event.id)}>visionnage</button>}
+                    {event.type === 'Visionnage' && (
+                        <>
+                            {moment(event.end).isAfter(moment()) && event.participe && (
+                                <button onClick={() => handleajoutphotovisio(event.id)}>Ajouter photo</button>
+                            )}
+                            {isAdmin && <button onClick={() => handlevisio(event.id)}>Visionnage</button>}
+                        </>
+                    )}
                     <button onClick={handleClosePopup}>Fermer</button>
                 </div>
             </div>
@@ -212,8 +208,9 @@ const Calendrier: React.FC<CalendrierProps> = ({ setPage, setIdvisionnage }) => 
             params: { id_evenement: idevent }
         })
         .then((response) => {
-            const idvisionnage = response.data;
-            setIdvisionnage(idvisionnage);
+            const idvisio = response.data;
+            setIdvisionnage(idvisio);
+            console.log('idvisionnageaaaaaaaaaaaaa :', idvisionnage)
             setPage(4);
         })
         .catch((error) => {
@@ -223,18 +220,23 @@ const Calendrier: React.FC<CalendrierProps> = ({ setPage, setIdvisionnage }) => 
 
     const handlevisio = async (idevent: number) => {
         console.log('handlevisio');
+        console.log('idevent :', idevent)
         await axios.get('http://localhost:5000/GET/visionnage', {
             params: { id_evenement: idevent }
         })
         .then((response) => {
-            const idvisionnage = response.data;
-            setIdvisionnage(idvisionnage);
+            const idvisio = response.data;
+            console.log('idvisio :', idvisio)
+            setIdvisionnage(idvisio);
+            console.log('idvisionnagea :', idvisionnage)
             setPage(10);
         })
         .catch((error) => {
             console.error('Error fetching visionnage id:', error);
         });
     }
+
+    
 
 
     return (
@@ -253,12 +255,7 @@ const Calendrier: React.FC<CalendrierProps> = ({ setPage, setIdvisionnage }) => 
                     endAccessor="end"
                     allDayAccessor={(event) => event.allDay || false}
                     style={{ height: '100%' }}
-                    components={{
-                        agenda: {
-                            event: EventAgenda,
-                        },
-                        event: EventComponent,
-                    }}
+                    eventPropGetter={eventPropGetter}
                     onSelectEvent={handleSelectEvent}
                 />
             </div>

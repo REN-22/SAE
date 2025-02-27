@@ -13,6 +13,8 @@ import AjoutEvent from './Component/evenement/ajoutevent'
 import PagePrésentation from './Component/Pagedeprésentation/pagePrésentation'
 import PageAdmin from './Component/administration/pageAdmin'
 import Visionnage from './Component/visionnage/visionnage'
+import Documentlist from './Component/ZoneDocument/Documentlist'
+import UploadDocument from './Component/ZoneDocument/uploaddocument'
 
 //CPT
 function App() {
@@ -91,10 +93,15 @@ function App() {
           setIsConnected={setIsConnected} 
           isConnected />
       )}
+      {page === 6 && (
+        <Documentlist
+          setPage={setPage} />
+      )}
       {page === 7 && (
         <Calendrier
           setPage={setPage} 
-          setIdvisionnage={setIdvisionnage} />
+          setIdvisionnage={setIdvisionnage}
+          idvisionnage={idvisionnage} />
       )}
       {page === 8 && (
         <AjoutEvent
@@ -109,6 +116,11 @@ function App() {
           setPage={setPage}
           idvisionnage={1} 
           setIdvisionnage={setIdvisionnage}/>
+      )}
+      {page === 11 && (
+        <UploadDocument
+          setPage={setPage}
+          />
       )}
     </div>
     </>

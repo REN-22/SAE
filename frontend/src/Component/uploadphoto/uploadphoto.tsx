@@ -43,7 +43,6 @@ const Uploadphoto: React.FC<UploadphotoProps> = ({ setPage, idvisionnage, setIdv
             nom: nomphoto,
             description,
             isPublic,
-            photographe,
             tags: selectedTags.map(tag => tag.id_mot_cle), // On envoie les IDs des tags sélectionnés
             idvisionnage,
         }));
@@ -132,15 +131,6 @@ const Uploadphoto: React.FC<UploadphotoProps> = ({ setPage, idvisionnage, setIdv
                 value={nomphoto}
                 onChange={(e) => setNomphoto(e.target.value)}
             />
-            <select value={photographe} onChange={(e) => setPhotographe(e.target.value)}>
-                <option value="" disabled>Choisir un photographe</option>
-                {users.map(user => (
-                    <option key={user.id_utilisateur} value={user.id_utilisateur}>
-                        {user.nom}
-                    </option>
-                ))}
-            </select>
-
             {/* Affichage des tags sélectionnés avec un bouton pour les supprimer */}
             <div className="selected-tags">
                 {selectedTags.map(tag => (
