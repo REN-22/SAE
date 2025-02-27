@@ -28,6 +28,12 @@ if [[ -z "$admin_email" || -z "$admin_password" ]]; then
     exit 1
 fi
 
+# Vérifier que l'email est valide
+if [[ ! "$admin_email" =~ ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
+    echo "L'email n'est pas valide. Veuillez relancer le script."
+    exit 1
+fi
+
 # Mettre à jour le fichier init.sql avec les nouvelles informations
 sed -i "s/'admin@example.com'/'$admin_email'/g" init.sql
 sed -i "s/SHA2('admin123', 256)/SHA2('$admin_password', 256)/g" init.sql
