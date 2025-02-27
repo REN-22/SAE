@@ -22,6 +22,9 @@ COPY . .
 # Ajuster les permissions après avoir copié les fichiers du projet
 RUN chmod -R 755 /app
 
+# installation des déclarations
+RUN yarn
+
 # Exposer le port utilisé par l'application
 EXPOSE 3000
 
