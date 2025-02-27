@@ -19,6 +19,9 @@ RUN yarn global add typescript
 # Copier les fichiers du projet dans le conteneur
 COPY . .
 
+# installation des déclarations de types pour multer et jsonwebtoken
+RUN yarn add @types/multer @types/jsonwebtoken --dev
+
 # Construire le projet TypeScript
 RUN yarn build
 
