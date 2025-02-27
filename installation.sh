@@ -33,8 +33,13 @@ sudo apt-get install -y docker-ce
 sudo usermod -aG docker ${USER}
 
 # Installer Docker Compose
-sudo curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')" -o /usr/local/bin/docker-compose
+DOCKER_COMPOSE_VERSION=$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')
+if [ -z "$DOCKER_COMPOSE_VERSION" ]; then
+  echo "Failed to fetch Docker Compose version."
+  exit 1
+fi
+sudo curl -L "https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_VERSION/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
 
 # Construire et démarrer les conteneurs Docker
-docker-compose up --build
+docker-compose up -d --build
