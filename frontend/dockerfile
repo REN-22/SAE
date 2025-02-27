@@ -19,6 +19,9 @@ RUN yarn global add typescript
 # Copier les fichiers du projet dans le conteneur
 COPY . .
 
+# Ajuster les permissions après avoir copié les fichiers du projet
+RUN chmod -R 755 /app
+
 # Construire le projet TypeScript
 RUN yarn build
 
