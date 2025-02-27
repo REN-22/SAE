@@ -10,6 +10,9 @@ COPY package.json yarn.lock ./
 # Installer les dépendances
 RUN yarn install
 
+# Installer TypeScript globalement
+RUN yarn global add typescript
+
 # Copier les fichiers du projet dans le conteneur
 COPY . .
 
