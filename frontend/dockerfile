@@ -22,9 +22,6 @@ COPY . .
 # Ajuster les permissions après avoir copié les fichiers du projet
 RUN chmod -R 755 /app
 
-# Construire le projet TypeScript
-RUN yarn build
-
 # Exposer le port utilisé par l'application
 EXPOSE 8080
 
