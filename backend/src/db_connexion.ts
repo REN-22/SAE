@@ -1,18 +1,19 @@
 import mysql from 'mysql2';
 
 const connexion = mysql.createConnection({
-    host: 'db',
+    host: 'bd_photo',
     user: 'root',
     password: '',
-    database: 'dbphoto'
+    database: 'dbphoto',
+    port: 3306
 });
 
 connexion.connect((err) => {
     if (err) {
-        console.error('Error connecting to MySQL:', err);
+        console.error('Erreur de connexion à MySQL:', err.message);
         return;
     }
-    console.log('Connected to MySQL!');
+    console.log('Connexion à MySQL réussie !');
 });
 
 export default connexion;
