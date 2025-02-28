@@ -1,10 +1,10 @@
 import mysql from 'mysql2';
 
 const connexion = mysql.createConnection({
-    host: 'localhost',
+    host: 'db',
     user: 'root',
-    password: '',
-    database: 'DBPHOTO'
+    password: 'panzerkamfwagen',
+    database: 'dbphoto'
 });
 
 connexion.connect((err) => {
@@ -14,6 +14,5 @@ connexion.connect((err) => {
     }
     console.log('Connected to MySQL!');
 });
-
 
 export default connexion;
