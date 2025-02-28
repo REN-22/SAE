@@ -193,14 +193,5 @@ INSERT INTO `utilisateur` (
   1                    -- statut de cotisation
 );
 
--- Mettre à jour le mot de passe de l'utilisateur root et ses permissions
-ALTER USER 'root'@'%' IDENTIFIED BY '2204';
-FLUSH PRIVILEGES;
-
--- Mettre à jour les permissions pour accepter les connexions depuis n'importe quelle adresse IP
-UPDATE mysql.user SET host = '%' WHERE user = 'root';
-FLUSH PRIVILEGES;
-
-
 -- Validation des modifications
 COMMIT;
