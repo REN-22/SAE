@@ -19,7 +19,7 @@ const Visionnage: React.FC<VisionnageProps> = ({ setPage, idvisionnage, setIdvis
         const fetchVisionnage = async () => {
             console.log('idvisionnage :',idvisionnage)
             try {
-                const response = await axios.get(`http://localhost:5000/GET/visionnage-photos`, {
+                const response = await axios.get(`http://backend:5000/GET/visionnage-photos`, {
                     params: { id: idvisionnage, token },
                 });
                 setVisionnage(response.data);
@@ -44,7 +44,7 @@ const Visionnage: React.FC<VisionnageProps> = ({ setPage, idvisionnage, setIdvis
             try {
                 // Récupérer le fichier photo
                 const fileResponse = await axios.get(
-                    "http://localhost:5000/GET/photo/file",
+                    "http://backend:5000/GET/photo/file",
                     {
                         params: { id: idphotoNumber, token },
                         responseType: "blob", // Important pour récupérer un fichier

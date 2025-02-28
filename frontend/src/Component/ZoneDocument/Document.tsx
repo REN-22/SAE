@@ -14,7 +14,7 @@ const Document: React.FC<DocumentProps> = ({ id }) => {
     useEffect(() => {
         const fetchDocument = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/GET/document', {
+                const response = await axios.get('http://backend:5000/GET/document', {
                     params: { id: id, token: token }
                 });
                 const document = response.data;
@@ -41,7 +41,7 @@ const Document: React.FC<DocumentProps> = ({ id }) => {
     }, [id]);
 
     const handleOpenDocument = () => {
-        window.open(`http://localhost:5000/GET/document/file?id=${id}&token=${token}`, '_blank');
+        window.open(`http://backend:5000/GET/document/file?id=${id}&token=${token}`, '_blank');
     };
 
     return (

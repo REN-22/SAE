@@ -16,7 +16,7 @@ const Utilisateur: React.FC<UserProps> = ({ id }) => {
     useEffect(() => {
         const fetchUtilisateur = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/GET/userid', {
+                const response = await axios.get('http://backend:5000/GET/userid', {
                     params: { id: id, token: token }
                 });
                 const utilisateur = response.data;
@@ -36,7 +36,7 @@ const Utilisateur: React.FC<UserProps> = ({ id }) => {
     const handleValidationCompte = async () => {
         if (window.confirm('Êtes-vous sûr de vouloir valider ce compte ?')) {
             try {
-                await axios.put('http://localhost:5000/PUT/validate-user', {
+                await axios.put('http://backend:5000/PUT/validate-user', {
                     id: id,
                     token: token
                 });
@@ -50,7 +50,7 @@ const Utilisateur: React.FC<UserProps> = ({ id }) => {
     const handlePaiementCotisation = async () => {
         if (window.confirm('Êtes-vous sûr de vouloir valider ce paiement de cotisation ?')) {
             try {
-                await axios.put('http://localhost:5000/PUT/validate-cotisation', {
+                await axios.put('http://backend:5000/PUT/validate-cotisation', {
                     id: id,
                     token: token
                 });

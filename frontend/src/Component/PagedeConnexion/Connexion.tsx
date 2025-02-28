@@ -19,7 +19,7 @@ const Connexion: React.FC<ConnexionProps> = ({ setPage, setIsConnected, isConnec
 
     axios
       .get(
-        `http://localhost:5000/GET/connexion?mail=${encodeURIComponent(
+        `http://backend:5000/GET/connexion?mail=${encodeURIComponent(
           email,
         )}&mdp=${encodeURIComponent(password)}`
       )
@@ -33,7 +33,7 @@ const Connexion: React.FC<ConnexionProps> = ({ setPage, setIsConnected, isConnec
 
           // Vérification du token
           console.log('Vérification du token en cours...');
-          return axios.get('http://localhost:5000/GET/verify-token', {
+          return axios.get('http://backend:5000/GET/verify-token', {
             params: {
               token: token
             }

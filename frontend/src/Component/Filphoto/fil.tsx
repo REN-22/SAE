@@ -40,7 +40,7 @@ const Fil: React.FC<FilProps> = ({ setPage }) => {
   React.useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/GET/photosid', {
+        const response = await axios.get('http://backend:5000/GET/photosid', {
           params: {
             token: token,
             page: filpage

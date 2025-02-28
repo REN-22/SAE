@@ -26,7 +26,7 @@ const Commentaire: React.FC<CommentaireProps> = ({ id }) => {
         // Requête pour récupérer les données du commentaire
         console.log('id et token:', id, token);
         axios
-            .get('http://localhost:5000/GET/commentaire', {
+            .get('http://backend:5000/GET/commentaire', {
                 params: { id, token }, // Passer l'ID en tant que paramètre
             })
             .then((response) => {

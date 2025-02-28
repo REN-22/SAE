@@ -35,7 +35,7 @@ const Post: React.FC<PostProps> = ({ idPhoto, toggleAffcom }) => {
 
                 // Récupérer les métadonnées
                 const metadataResponse = await axios.get(
-                    "http://localhost:5000/GET/photo/metadata",
+                    "http://backend:5000/GET/photo/metadata",
                     {
                         params: { token, id: idPhoto },
                     }
@@ -60,7 +60,7 @@ const Post: React.FC<PostProps> = ({ idPhoto, toggleAffcom }) => {
                 // Récupérer les tags
                 try {
                     const tagsResponse = await axios.get(
-                        "http://localhost:5000/GET/photo/tags",
+                        "http://backend:5000/GET/photo/tags",
                         {
                             params: { token, id: idPhoto },
                         }
@@ -85,7 +85,7 @@ const Post: React.FC<PostProps> = ({ idPhoto, toggleAffcom }) => {
 
                 // Récupérer le fichier photo
                 const fileResponse = await axios.get(
-                    "http://localhost:5000/GET/photo/filemin",
+                    "http://backend:5000/GET/photo/filemin",
                     {
                         params: { id: idPhoto },
                         responseType: "blob", // Important pour récupérer un fichier
@@ -111,7 +111,7 @@ const Post: React.FC<PostProps> = ({ idPhoto, toggleAffcom }) => {
             // Récupérer le nombre de commentaires
             try {
                 const commentsResponse = await axios.get(
-                    "http://localhost:5000/GET/commentaires-count",
+                    "http://backend:5000/GET/commentaires-count",
                     {
                         params: { id_photo: idPhoto },
                     }

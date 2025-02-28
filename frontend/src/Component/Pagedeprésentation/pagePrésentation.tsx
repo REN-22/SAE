@@ -23,7 +23,7 @@ const PagePrésentation: React.FC = () => {
     }, []);
     const fetchPhotoById = async (id: number) => {
         try {
-            const response = await axios.get(`http://localhost:5000/GET/photo/filemin?id=${id}`, {
+            const response = await axios.get(`http://backend:5000/GET/photo/filemin?id=${id}`, {
                 responseType: 'blob',
             });
             const imageUrl = URL.createObjectURL(response.data);

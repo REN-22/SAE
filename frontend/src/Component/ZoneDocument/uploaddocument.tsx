@@ -23,7 +23,7 @@ const UploadDocument: React.FC<UploadDocumentProps> = ({ setPage }) => {
         console.log("upload");
         const token = localStorage.getItem('phototoken');
         try {
-            const response = await axios.get('http://localhost:5000/GET/verify-token', {
+            const response = await axios.get('http://backend:5000/GET/verify-token', {
                 params: { token }
             });
             if (!response.data.valid) {
@@ -47,7 +47,7 @@ const UploadDocument: React.FC<UploadDocumentProps> = ({ setPage }) => {
         
         try {
             console.log("formData", formData);
-            const response = await axios.post('http://localhost:5000/POST/upload-document', formData, {
+            const response = await axios.post('http://backend:5000/POST/upload-document', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             console.log("réponse", response.data);

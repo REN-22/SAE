@@ -17,7 +17,7 @@ const CommentairesTotal: React.FC<CommentairesTotalprops> = ({ idPhoto }) => {
     const fetchCommentaires = async () => {
         console.log('Fetching commentaires for photo:', idPhoto);
         try {
-            const response = await axios.get('http://localhost:5000/GET/commentaires', {
+            const response = await axios.get('http://backend:5000/GET/commentaires', {
                 params: {
                     token: localStorage.getItem('phototoken'),
                     id_photo: idPhoto
@@ -55,7 +55,7 @@ const CommentairesTotal: React.FC<CommentairesTotalprops> = ({ idPhoto }) => {
             console.log('idPhoto:', idPhoto);
             console.log('token:', token);
             try {
-                const response = await axios.post('http://localhost:5000/POST/create-comment', {
+                const response = await axios.post('http://backend:5000/POST/create-comment', {
                     token: token,
                     id_photo: idPhoto,
                     texte

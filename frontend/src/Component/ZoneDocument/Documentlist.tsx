@@ -20,7 +20,7 @@ const Documentlist: React.FC<DocumentlistProps> = ({ setPage }) => {
   useEffect(() => {
     const fetchUserRole = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/GET/user-role', {
+            const response = await axios.get('http://backend:5000/GET/user-role', {
                 params: { token }
             });
             const role = response.data.role;
@@ -36,7 +36,7 @@ const Documentlist: React.FC<DocumentlistProps> = ({ setPage }) => {
 useEffect(() => {
   const fetchDocuments = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/GET/documents');
+      const response = await axios.get('http://backend:5000/GET/documents');
       const documents = response.data;
       
       const documentformat = documents.map((doc: { id_document: number }) => doc.id_document);

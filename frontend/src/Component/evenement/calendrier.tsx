@@ -76,7 +76,7 @@ const Calendrier: React.FC<CalendrierProps> = ({ setPage, setIdvisionnage, idvis
 
     const fetchEvents = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/GET/events', {
+            const response = await axios.get('http://backend:5000/GET/events', {
                 params: { token }
             });
             const data = response.data;
@@ -107,7 +107,7 @@ const Calendrier: React.FC<CalendrierProps> = ({ setPage, setIdvisionnage, idvis
 
     const fetchUserRole = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/GET/user-role', {
+            const response = await axios.get('http://backend:5000/GET/user-role', {
                 params: { token }
             });
             const role = response.data.role;
@@ -138,7 +138,7 @@ const Calendrier: React.FC<CalendrierProps> = ({ setPage, setIdvisionnage, idvis
     };
 
     const handleRegister = () => {
-        axios.post('http://localhost:5000/POST/update-participation', {
+        axios.post('http://backend:5000/POST/update-participation', {
             token: token,
             id_evenement: selectedEvent?.id,
             presence: true,
@@ -204,7 +204,7 @@ const Calendrier: React.FC<CalendrierProps> = ({ setPage, setIdvisionnage, idvis
 
     const handleajoutphotovisio = async (idevent: number) => {
         console.log('handleajoutphotovisio');
-        await axios.get('http://localhost:5000/GET/visionnage', {
+        await axios.get('http://backend:5000/GET/visionnage', {
             params: { id_evenement: idevent }
         })
         .then((response) => {
@@ -221,7 +221,7 @@ const Calendrier: React.FC<CalendrierProps> = ({ setPage, setIdvisionnage, idvis
     const handlevisio = async (idevent: number) => {
         console.log('handlevisio');
         console.log('idevent :', idevent)
-        await axios.get('http://localhost:5000/GET/visionnage', {
+        await axios.get('http://backend:5000/GET/visionnage', {
             params: { id_evenement: idevent }
         })
         .then((response) => {

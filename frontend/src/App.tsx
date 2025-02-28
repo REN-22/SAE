@@ -30,7 +30,7 @@ function App() {
         setIsConnected(false);
       } else {
         try {
-          const response = await axios.get('http://localhost:5000/GET/verify-token', {
+          const response = await axios.get('http://backend:5000/GET/verify-token', {
             params: {
               token: token
             }

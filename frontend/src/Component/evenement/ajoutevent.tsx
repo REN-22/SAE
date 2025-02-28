@@ -28,7 +28,7 @@ const AjoutEvent: React.FC<AjoutEventProps> = ({ setPage }) => {
         e.preventDefault();
             try {
                 const token = localStorage.getItem('phototoken');
-                const response = await axios.post('http://localhost:5000/POST/create-event', {
+                const response = await axios.post('http://backend:5000/POST/create-event', {
                     data: event,
                     token: token
                 });

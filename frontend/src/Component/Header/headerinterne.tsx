@@ -27,7 +27,7 @@ const HeaderInterne: React.FC<HeaderInterneProps> = ({ setPage }) => {
     useEffect(() => {
         const fetchUserRole = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/GET/user-role', {
+                const response = await axios.get('http://backend:5000/GET/user-role', {
                     params: {
                         token: token
                     }

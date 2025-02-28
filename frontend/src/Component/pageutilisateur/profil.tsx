@@ -14,7 +14,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ setPage }) => {
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/GET/user', {
+        const response = await axios.get('http://backend:5000/GET/user', {
           params: { token }
         });
         setUserInfo(response.data);

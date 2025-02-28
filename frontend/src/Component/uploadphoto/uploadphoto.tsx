@@ -22,7 +22,7 @@ const Uploadphoto: React.FC<UploadphotoProps> = ({ setPage, idvisionnage, setIdv
         console.log("upload");
         const token = localStorage.getItem('phototoken');
         try {
-            const response = await axios.get('http://localhost:5000/GET/verify-token', {
+            const response = await axios.get('http://backend:5000/GET/verify-token', {
                 params: { token }
             });
             if (!response.data.valid) {
@@ -50,7 +50,7 @@ const Uploadphoto: React.FC<UploadphotoProps> = ({ setPage, idvisionnage, setIdv
         formData.append('token', token ?? '');
 
         try {
-            const response = await axios.post('http://localhost:5000/POST/upload-photo', formData, {
+            const response = await axios.post('http://backend:5000/POST/upload-photo', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             console.log("réponse", response.data);
@@ -70,7 +70,7 @@ const Uploadphoto: React.FC<UploadphotoProps> = ({ setPage, idvisionnage, setIdv
         const fetchUsers = async () => {
             const token = localStorage.getItem('phototoken');
             try {
-                const response = await axios.get('http://localhost:5000/GET/users', {
+                const response = await axios.get('http://backend:5000/GET/users', {
                     params: { token }
                 });
                 setUsers(response.data);
@@ -86,7 +86,7 @@ const Uploadphoto: React.FC<UploadphotoProps> = ({ setPage, idvisionnage, setIdv
         const fetchTags = async () => {
             const token = localStorage.getItem('phototoken');
             try {
-                const response = await axios.get('http://localhost:5000/GET/tags', {
+                const response = await axios.get('http://backend:5000/GET/tags', {
                     params: { token }
                 });
                 setTags(response.data);

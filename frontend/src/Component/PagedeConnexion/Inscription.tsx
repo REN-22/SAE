@@ -26,7 +26,7 @@ const Inscription: React.FC<InscriptionProps> = ({ setPage }) => {
       setErrorMessage('Les mots de passe ne correspondent pas.');
       return;
     }
-    axios.post('http://localhost:5000/POST/create-user', {
+    axios.post('http://backend:5000/POST/create-user', {
       pseudo,
       nom: lastName,
       prenom: firstName,
