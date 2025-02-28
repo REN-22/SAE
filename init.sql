@@ -181,7 +181,7 @@ INSERT INTO `utilisateur` (
   'admin',             -- pseudo
   'Administrateur',    -- nom
   'Principal',         -- prenom
-  '1 Rue de l\'Admin', -- adresse 
+  '1 Rue de lAdmin',   -- adresse 
   '75000',             -- code postal
   'Paris',             -- ville
   '0102030405',        -- téléphone
@@ -192,6 +192,12 @@ INSERT INTO `utilisateur` (
   1,                   -- notification par mail
   1                    -- statut de cotisation
 );
+
+-- Ajoute les commandes pour réinitialiser le mot de passe root et mettre à jour les permissions
+ALTER USER 'root'@'%' IDENTIFIED BY '2204';
+FLUSH PRIVILEGES;
+UPDATE mysql.user SET host = '%' WHERE user = 'root';
+FLUSH PRIVILEGES;
 
 -- Validation des modifications
 COMMIT;
