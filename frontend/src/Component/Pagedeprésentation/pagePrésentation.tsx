@@ -8,7 +8,7 @@ const PagePrésentation: React.FC = () => {
     useEffect(() => {
         const fetchPhotos = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/GET/random-photos');
+                const response = await axios.get('http://backend:5000/GET/random-photos');
                 const data = response.data;
                 const photoPromises = data.map((photo: any) => fetchPhotoById(photo.id_photo));
                 const photos = await Promise.all(photoPromises);
