@@ -33,7 +33,13 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-
+app.get('/api/ping', (req, res) => {
+    res.json({ message: 'pong' });
+  });
+  
+  app.listen(PORT, () => {
+    console.log(`Backend is running on http://localhost:${PORT}`);
+  });
 
 /*------------------------------------------POST---------------------------------------------- */
 

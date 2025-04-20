@@ -21,6 +21,13 @@ function App() {
   const [page, setPage] = useState(0);
   const [isConnected, setIsConnected] = useState(false);
   const [idvisionnage, setIdvisionnage] = useState<number | null>(null);
+  
+  useEffect(() => {
+    fetch("http://localhost:5000/api/ping")
+      .then((res) => res.json())
+      .then((data) => console.log("Réponse du backend :", data))
+      .catch((err) => console.error("Erreur de communication :", err));
+  }, []);
 
   useEffect(() => {
     console.log('useEffect');
