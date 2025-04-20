@@ -1,7 +1,7 @@
 import mysql from 'mysql2';
 
 const connexion = mysql.createConnection({
-    host: 'bd',
+    host: 'db',
     user: 'root',
     password: '',
     database: 'dbphoto',
