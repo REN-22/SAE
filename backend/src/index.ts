@@ -12,7 +12,7 @@ import { console } from 'inspector';
 import {ExifParserFactory} from "ts-exif-parser";
 
 const app = express();
-const PORT = 5000;
+const PORT = 5002;
 
 app.use(cors());
 app.use(express.json());
