@@ -13,10 +13,11 @@ import {ExifParserFactory} from "ts-exif-parser";
 
 const app = express();
 const PORT = 5002;
+const IP = '127.0.0.1';
 
 app.use(cors());
 app.use(express.json());
-app.listen(PORT, () => {
+app.listen(PORT, IP, () => {
     console.log(`Server is running on port ${PORT}`);
 });
 
